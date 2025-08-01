@@ -12,8 +12,7 @@ namespace ToysStore.Models.Auth
         public required string LastName { get; set; }
 
         public ICollection<ApplicationUserRole>? UserRoles { get; set; }
-
-        public ICollection<Prodotto>? ListaGiocattoli {  get; set; }
-        public ICollection<Carrello>? Carrelli { get; set; } 
+        public ICollection<Prodotto>? ListaProdotti {  get; set; }
+        public ICollection<ProdottoCarrello>? ProdottiCarrello { get; set; }
     }
 }

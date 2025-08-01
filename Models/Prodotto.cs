@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using ToysStore.Models.Auth;
 
 namespace ToysStore.Models
@@ -13,26 +14,19 @@ namespace ToysStore.Models
         public string? NomeGiocattolo { get;set; }
 
         [Required]
-        public string? ImmagineGiocattolo { get; set; }
-
-        [Required]
-        public string? ImmagineGiocattoloDue { get; set; }
-        
-        public string? ImmagineGiocattoloTre { get; set; }
-        
-        public string? ImmagineGiocattoloQuattro { get; set; }
-
-        [Required]
         [MaxLength(2000)] 
         public string? DescrizioneGiocattolo { get; set; }
+
         [Required]
         public string? Condizioni { get; set; }
 
         [Required]
-        public decimal PrezzoGiocattolo { get; set; }
-
+        public decimal PrezzoGiocattolo { get; set; }   
+        
         public Guid UtenteId { get; set; }
+        [ForeignKey("UtenteId")]
         public ApplicationUser? Utente { get; set; }
-
+        public ICollection<ImmagineProdotto> ImmaginiProdotto { get; set; } = new List<ImmagineProdotto>();
+        public ICollection<RecensioneProdotto> RecensioniProdotto { get; set; } = new List<RecensioneProdotto>();
     }
 }
