@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using ToysStore.Models.Auth;
 
 namespace ToysStore.Models
 {
@@ -12,10 +13,10 @@ namespace ToysStore.Models
         public string? Nickname { get; set; }
 
         [Required]
-        public string? Indirizzo { get; set; }
+        public string UserId { get; set; }
 
         [ForeignKey("UserId")]
-        public Guid UserId { get; set; }
-
+        public ApplicationUser User { get; set; }
+        
     }
 }
