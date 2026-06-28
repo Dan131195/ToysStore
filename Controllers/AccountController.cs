@@ -25,17 +25,17 @@ namespace ToysStore.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly EmailService _emailService; // !!!
+        private readonly ApplicationDbContext _dbContext;
 
-        // !!!
-        // EMAILSERVICE DA AGGIUNGERE CON L'EMAIL DI BENVENUTO NELLA REGISTRAZIONE E AL MOMENTO DEL LOGIN EFFETTUATO
 
-        public AccountController(IOptions<Jwt> jwtOptions, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<ApplicationRole> roleManager, EmailService emailService)
+        public AccountController(IOptions<Jwt> jwtOptions, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<ApplicationRole> roleManager, EmailService emailService, ApplicationDbContext dbContext)
         {
             _jwtSettings = jwtOptions.Value;
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
             _emailService = emailService;
+            _dbContext = dbContext;
         }
 
         [HttpPost("Register")]
@@ -83,13 +83,18 @@ namespace ToysStore.Controllers
                         UserId = newUser.Id
                     };
 
-                    using var scope = HttpContext.RequestServices.CreateScope();
-                    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                    dbContext.Utenti.Add(utente);
-                    await dbContext.SaveChangesAsync();
+                    _dbContext.Utenti.Add(utente);
+
+                    await _dbContext.SaveChangesAsync();
 
                     utenteId = utente.UtenteId;
                 }
+
+                // EMAIL DI BENVENUTO
+
+                var subject = "Benvenuto su ToysStore!";
+                var body = $"Ciao {newUser.FirstName},<br><br>Benvenuto nel nostro Marketplace di giocattoli! Siamo felici di averti con noi.";
+                await _emailService.SendEmailAsync(newUser.Email, subject, body);
 
                 return Ok(new RegisterResponseDto
                 {
@@ -111,7 +116,7 @@ namespace ToysStore.Controllers
             }
         }
 
-            [HttpPost("Login")]
+        [HttpPost("Login")]
         public async Task<IActionResult> Login(LoginRequestDto loginRequestDto)
         {
             var user = await _userManager.FindByEmailAsync(loginRequestDto.Email);
@@ -147,10 +152,16 @@ namespace ToysStore.Controllers
 
             string tokenString = new JwtSecurityTokenHandler().WriteToken(token);
 
+            // EMAIL DI LOGIN EFFETTUATO 
+
+            var loginSubject = "Nuovo accesso al tuo account";
+            var loginBody = $"Ciao {user.FirstName}, abbiamo rilevato un nuovo accesso al tuo account ToysStore in data {DateTime.Now}. Se non sei stato tu, cambia subito la password.";
+            await _emailService.SendEmailAsync(user.Email, loginSubject, loginBody);
+
             return Ok(new TokenResponse
             {
                 Token = tokenString,
-                Expires = expiry, 
+                Expires = expiry,
                 UserId = user.Id,
                 Email = user.Email,
                 Roles = roles.ToList()

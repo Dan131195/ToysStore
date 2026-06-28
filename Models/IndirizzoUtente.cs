@@ -34,6 +34,5 @@ namespace ToysStore.Models
 
         public bool IsPredefinito { get; set; } = false;
 
-        public ICollection<Ordine> Ordini { get; set; } = new List<Ordine>();
     }
 }
