@@ -16,7 +16,8 @@ namespace ToysStore.Models.Auth
         public ICollection<Prodotto>? ListaProdotti {  get; set; }
         public ICollection<ProdottoCarrello>? ProdottiCarrello { get; set; }
         public ICollection<Ordine>? Ordini { get; set; }
-        public ICollection<IndirizzoUtente> Indirizzi { get; set; }
-        public Utente Utente { get; set; }
+        public ICollection<IndirizzoUtente>? Indirizzi { get; set; }
+        public ICollection<RecensioneProdotto> RecensioniProdotto { get; set; } = new List<RecensioneProdotto>();
+        public Utente? Utente { get; set; }
     }
 }

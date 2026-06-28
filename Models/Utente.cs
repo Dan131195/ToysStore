@@ -12,6 +12,8 @@ namespace ToysStore.Models
         [Required]
         public string? Nickname { get; set; }
 
+        public string? ImmagineProfilo { get; set; }
+
         [Required]
         public string UserId { get; set; }
 

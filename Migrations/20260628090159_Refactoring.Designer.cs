@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ToysStore.Data;
 
@@ -11,9 +12,11 @@ using ToysStore.Data;
 namespace ToysStore.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260628090159_Refactoring")]
+    partial class Refactoring
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -317,6 +320,13 @@ namespace ToysStore.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
+                    b.Property<Guid?>("IndirizzoUtenteId")
+                        .IsRequired()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ProdottoGiocattoloId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("StatoOrdineId")
                         .HasColumnType("int");
 
@@ -329,6 +339,10 @@ namespace ToysStore.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("OrdineId");
+
+                    b.HasIndex("IndirizzoUtenteId");
+
+                    b.HasIndex("ProdottoGiocattoloId");
 
                     b.HasIndex("StatoOrdineId");
 
@@ -613,6 +627,16 @@ namespace ToysStore.Migrations
 
             modelBuilder.Entity("ToysStore.Models.Ordine", b =>
                 {
+                    b.HasOne("ToysStore.Models.IndirizzoUtente", "IndirizzoUtente")
+                        .WithMany("Ordini")
+                        .HasForeignKey("IndirizzoUtenteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ToysStore.Models.Prodotto", null)
+                        .WithMany("Ordini")
+                        .HasForeignKey("ProdottoGiocattoloId");
+
                     b.HasOne("ToysStore.Models.StatoOrdine", "StatoOrdine")
                         .WithMany("Ordini")
                         .HasForeignKey("StatoOrdineId")
@@ -624,6 +648,8 @@ namespace ToysStore.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("IndirizzoUtente");
 
                     b.Navigation("StatoOrdine");
 
@@ -731,6 +757,11 @@ namespace ToysStore.Migrations
                     b.Navigation("Utente");
                 });
 
+            modelBuilder.Entity("ToysStore.Models.IndirizzoUtente", b =>
+                {
+                    b.Navigation("Ordini");
+                });
+
             modelBuilder.Entity("ToysStore.Models.Ordine", b =>
                 {
                     b.Navigation("ProdottiOrdine");
@@ -739,6 +770,8 @@ namespace ToysStore.Migrations
             modelBuilder.Entity("ToysStore.Models.Prodotto", b =>
                 {
                     b.Navigation("ImmaginiProdotto");
+
+                    b.Navigation("Ordini");
 
                     b.Navigation("ProdottiCarrello");
 

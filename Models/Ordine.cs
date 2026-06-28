@@ -28,11 +28,6 @@ namespace ToysStore.Models
         [MaxLength(10)]
         public string? CAPSnapshot { get; set; }
 
-        [Required]
-        public Guid? IndirizzoUtenteId { get; set; }
-        [ForeignKey("IndirizzoUtenteId")]
-        public IndirizzoUtente? IndirizzoUtente { get; set; }
-
         public ICollection<ProdottoOrdine> ProdottiOrdine { get; set; } = new List<ProdottoOrdine>();
 
         [Required]

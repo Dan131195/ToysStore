@@ -7,5 +7,6 @@ namespace ToysStore.Controllers
     [ApiController]
     public class ProdottoController : ControllerBase
     {
+
     }
 }

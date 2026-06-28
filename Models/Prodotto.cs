@@ -31,6 +31,5 @@ namespace ToysStore.Models
         public ICollection<RecensioneProdotto> RecensioniProdotto { get; set; } = new List<RecensioneProdotto>();
         public ICollection<ProdottoCarrello>? ProdottiCarrello { get; set; }
         public ICollection<ProdottoOrdine>? ProdottiOrdine { get; set; } 
-        public ICollection<Ordine> Ordini {  get; set; }
     }
 }
