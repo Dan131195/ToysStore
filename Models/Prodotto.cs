@@ -18,15 +18,24 @@ namespace ToysStore.Models
         public string? DescrizioneGiocattolo { get; set; }
 
         [Required]
-        public string? Condizioni { get; set; }
-
-        [Required]
         public decimal PrezzoGiocattolo { get; set; }   
         
         [Required]
         public string UserId { get; set; }
         [ForeignKey("UserId")]
         public ApplicationUser? User { get; set; }
+
+        [Required]
+        public int CategoriaId { get; set; }
+        [ForeignKey("CategoriaId")]
+        public Categoria? Categoria { get; set; }
+
+        [Required]
+        public int CondizioneId { get; set; }
+
+        [ForeignKey("CondizioneId")]
+        public Condizione? Condizione { get; set; }
+
         public ICollection<ImmagineProdotto> ImmaginiProdotto { get; set; } = new List<ImmagineProdotto>();
         public ICollection<RecensioneProdotto> RecensioniProdotto { get; set; } = new List<RecensioneProdotto>();
         public ICollection<ProdottoCarrello>? ProdottiCarrello { get; set; }

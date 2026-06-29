@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ToysStore.Data;
 
@@ -11,9 +12,11 @@ using ToysStore.Data;
 namespace ToysStore.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260628162338_Categorie")]
+    partial class Categorie
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -354,67 +357,6 @@ namespace ToysStore.Migrations
                         });
                 });
 
-            modelBuilder.Entity("ToysStore.Models.Condizione", b =>
-                {
-                    b.Property<int>("CondizioneId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CondizioneId"));
-
-                    b.Property<string>("DescrizioneCondizione")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("NomeCondizione")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.HasKey("CondizioneId");
-
-                    b.ToTable("Condizioni");
-
-                    b.HasData(
-                        new
-                        {
-                            CondizioneId = 1,
-                            DescrizioneCondizione = "Il giocattolo è nuovo, mai aperto e si trova nella sua confezione originale con i sigilli intatti. Non presenta alcun danno.",
-                            NomeCondizione = "Nuovo e sigillato"
-                        },
-                        new
-                        {
-                            CondizioneId = 2,
-                            DescrizioneCondizione = "Il giocattolo non è mai stato usato per giocare, ma non ha più la scatola originale o le etichette. Non presenta il minimo segno di usura ed è completo di tutti gli accessori.",
-                            NomeCondizione = "Nuovo senza confezione"
-                        },
-                        new
-                        {
-                            CondizioneId = 3,
-                            DescrizioneCondizione = "Usato pochissimo e tenuto con cura. Non ci sono difetti visibili, graffi o scoloriture. Tutti i pezzi originali sono presenti e, se elettronico, funziona perfettamente.",
-                            NomeCondizione = "Ottimo"
-                        },
-                        new
-                        {
-                            CondizioneId = 4,
-                            DescrizioneCondizione = "Il giocattolo è stato usato e amato. Mostra segni di usura normali e leggeri (es. piccoli graffi superficiali o adesivi leggermente consumati). È comunque completo per poterci giocare e strutturalmente integro.",
-                            NomeCondizione = "Buono"
-                        },
-                        new
-                        {
-                            CondizioneId = 5,
-                            DescrizioneCondizione = "Mostra segni di usura evidenti dovuti a un uso frequente. Potrebbe avere graffi profondi, vernice scolorita o mancare di accessori non essenziali (che non impediscono il funzionamento principale del gioco).",
-                            NomeCondizione = "Accettabile"
-                        },
-                        new
-                        {
-                            CondizioneId = 6,
-                            DescrizioneCondizione = "Il giocattolo presenta difetti importanti, componenti elettroniche non funzionanti, rotture o pezzi mancanti fondamentali. Viene venduto principalmente per essere riparato, riutilizzato per parti di ricambio (es. lotti di mattoncini Lego) o restauro.",
-                            NomeCondizione = "Con difetti"
-                        });
-                });
-
             modelBuilder.Entity("ToysStore.Models.ImmagineProdotto", b =>
                 {
                     b.Property<Guid>("ImmagineId")
@@ -454,6 +396,11 @@ namespace ToysStore.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("Indirizzo")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<bool>("IsPredefinito")
                         .HasColumnType("bit");
 
@@ -469,11 +416,6 @@ namespace ToysStore.Migrations
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Via")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
 
                     b.HasKey("IndirizzoId");
 
@@ -533,8 +475,9 @@ namespace ToysStore.Migrations
                     b.Property<int>("CategoriaId")
                         .HasColumnType("int");
 
-                    b.Property<int>("CondizioneId")
-                        .HasColumnType("int");
+                    b.Property<string>("Condizioni")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DescrizioneGiocattolo")
                         .IsRequired()
@@ -557,8 +500,6 @@ namespace ToysStore.Migrations
                     b.HasKey("GiocattoloId");
 
                     b.HasIndex("CategoriaId");
-
-                    b.HasIndex("CondizioneId");
 
                     b.HasIndex("UserId");
 
@@ -831,12 +772,6 @@ namespace ToysStore.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ToysStore.Models.Condizione", "Condizione")
-                        .WithMany("Prodotti")
-                        .HasForeignKey("CondizioneId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("ToysStore.Models.Auth.ApplicationUser", "User")
                         .WithMany("ListaProdotti")
                         .HasForeignKey("UserId")
@@ -844,8 +779,6 @@ namespace ToysStore.Migrations
                         .IsRequired();
 
                     b.Navigation("Categoria");
-
-                    b.Navigation("Condizione");
 
                     b.Navigation("User");
                 });
@@ -941,11 +874,6 @@ namespace ToysStore.Migrations
                 });
 
             modelBuilder.Entity("ToysStore.Models.Categoria", b =>
-                {
-                    b.Navigation("Prodotti");
-                });
-
-            modelBuilder.Entity("ToysStore.Models.Condizione", b =>
                 {
                     b.Navigation("Prodotti");
                 });

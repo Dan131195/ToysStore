@@ -10,22 +10,20 @@ namespace ToysStore.Data
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
-        // Tabelle di Identity 
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<ApplicationRole> ApplicationRoles { get; set; }
         public DbSet<ApplicationUserRole> ApplicationUserRoles { get; set; }
 
-        // Tabelle del Core Business
         public DbSet<Prodotto> Prodotti { get; set; }
         public DbSet<ImmagineProdotto> ImmaginiProdotto { get; set; }
         public DbSet<RecensioneProdotto> RecensioniProdotto { get; set; }
+        public DbSet<Categoria> Categorie { get; set; }
+        public DbSet<Condizione> Condizioni { get; set; }
 
-        // Tabelle di Gestione Utente e Carrello
-        public DbSet<Utente> Utenti { get; set; } 
+        public DbSet<Utente> Utenti { get; set; }
         public DbSet<IndirizzoUtente> IndirizziUtenti { get; set; }
         public DbSet<ProdottoCarrello> ProdottiCarrello { get; set; }
 
-        // Tabelle del Processo di Vendita (Ordini)
         public DbSet<Ordine> Ordini { get; set; }
         public DbSet<StatoOrdine> StatiOrdine { get; set; }
         public DbSet<ProdottoOrdine> ProdottiOrdine { get; set; }
@@ -174,6 +172,150 @@ namespace ToysStore.Data
                 new StatoOrdine { StatoOrdineId = 4, Nome = "Spedito" },
                 new StatoOrdine { StatoOrdineId = 5, Nome = "Ricevuto" },
                 new StatoOrdine { StatoOrdineId = 6, Nome = "Annullato" }
+            );
+
+            modelBuilder.Entity<Categoria>().HasData(
+                new Categoria
+                {
+                    CategoriaId = 1,
+                    NomeCategoria = "Prima Infanzia (0-36 mesi)",
+                    DescrizioneCategoria = "Sonagli, tappeti gioco, giostrine, primi passi, cavalcabili, massaggiagengive."
+                },
+                new Categoria
+                {
+                    CategoriaId = 2,
+                    NomeCategoria = "Costruzioni e Mattoncini",
+                    DescrizioneCategoria = "LEGO, Mega Bloks, Playmobil, costruzioni in legno, set magnetici."
+                },
+                new Categoria
+                {
+                    CategoriaId = 3,
+                    NomeCategoria = "Action Figure e Personaggi",
+                    DescrizioneCategoria = "Supereroi, personaggi di film/serie TV, anime, wrestling, dinosauri, Gormiti."
+                },
+                new Categoria
+                {
+                    CategoriaId = 4,
+                    NomeCategoria = "Bambole e Accessori",
+                    DescrizioneCategoria = "Barbie, bambolotti (es. Cicciobello), case delle bambole, vestiti, passeggini giocattolo."
+                },
+                new Categoria
+                {
+                    CategoriaId = 5,
+                    NomeCategoria = "Peluche e Pupazzi",
+                    DescrizioneCategoria = "Orsacchiotti, personaggi animati in pezza, animali di peluche, doudou."
+                },
+                new Categoria
+                {
+                    CategoriaId = 6,
+                    NomeCategoria = "Giochi da Tavolo e di Società",
+                    DescrizioneCategoria = "Giochi in scatola classici, giochi di carte, scacchi, dama."
+                },
+                new Categoria
+                {
+                    CategoriaId = 7,
+                    NomeCategoria = "Puzzle e Rompicapo",
+                    DescrizioneCategoria = "Puzzle tradizionali, puzzle 3D, cubi di Rubik, puzzle in legno."
+                },
+                new Categoria
+                {
+                    CategoriaId = 8,
+                    NomeCategoria = "Veicoli, Radiocomandati e Piste",
+                    DescrizioneCategoria = "Macchinine (es. Hot Wheels), trenini, piste elettriche, droni, barche, aerei."
+                },
+                new Categoria
+                {
+                    CategoriaId = 9,
+                    NomeCategoria = "Educativi e Scientifici",
+                    DescrizioneCategoria = "Microscopi, kit per esperimenti (STEM), mappamondi, tablet educativi, giochi di logica."
+                },
+                new Categoria
+                {
+                    CategoriaId = 10,
+                    NomeCategoria = "Creatività, Arti e Mestieri",
+                    DescrizioneCategoria = "Pasta da modellare (Play-Doh), kit per braccialetti, colori, lavagne, timbri."
+                },
+                new Categoria
+                {
+                    CategoriaId = 11,
+                    NomeCategoria = "Giochi d'Imitazione e Ruolo",
+                    DescrizioneCategoria = "Cucine giocattolo, finti attrezzi da lavoro, registratori di cassa, set da dottore."
+                },
+                new Categoria
+                {
+                    CategoriaId = 12,
+                    NomeCategoria = "Costumi e Travestimenti",
+                    DescrizioneCategoria = "Vestiti di Carnevale/Halloween, maschere, bacchette magiche, accessori."
+                },
+                new Categoria
+                {
+                    CategoriaId = 13,
+                    NomeCategoria = "Sport e Giochi all'Aperto",
+                    DescrizioneCategoria = "Biciclette, monopattini, pattini, palloni, pistole ad acqua, altalene, casette."
+                },
+                new Categoria
+                {
+                    CategoriaId = 14,
+                    NomeCategoria = "Musica e Strumenti Giocattolo",
+                    DescrizioneCategoria = "Tastiere elettroniche, chitarre per bambini, xilofoni, batterie, microfoni."
+                },
+                new Categoria
+                {
+                    CategoriaId = 15,
+                    NomeCategoria = "Videogiochi e Elettronica",
+                    DescrizioneCategoria = "Console (Nintendo Switch, PlayStation), videogiochi fisici, accessori gaming, Tamagotchi."
+                },
+                new Categoria
+                {
+                    CategoriaId = 16,
+                    NomeCategoria = "Libri, Fumetti e Cantastorie",
+                    DescrizioneCategoria = "Fiabe, libri interattivi, fumetti per ragazzi, dispositivi audio (Fabbrica delle Storie, Tonies)."
+                },
+                new Categoria
+                {
+                    CategoriaId = 17,
+                    NomeCategoria = "Zaini e Articoli Scolastici",
+                    DescrizioneCategoria = "Zaini con personaggi, astucci, portapranzi, grembiuli."
+                }
+            );
+
+            modelBuilder.Entity<Condizione>().HasData(
+                new Condizione
+                {
+                    CondizioneId = 1,
+                    NomeCondizione = "Nuovo e sigillato",
+                    DescrizioneCondizione = "Il giocattolo è nuovo, mai aperto e si trova nella sua confezione originale con i sigilli intatti. Non presenta alcun danno."
+                },
+                new Condizione
+                {
+                    CondizioneId = 2,
+                    NomeCondizione = "Nuovo senza confezione",
+                    DescrizioneCondizione = "Il giocattolo non è mai stato usato per giocare, ma non ha più la scatola originale o le etichette. Non presenta il minimo segno di usura ed è completo di tutti gli accessori."
+                },
+                new Condizione
+                {
+                    CondizioneId = 3,
+                    NomeCondizione = "Ottimo",
+                    DescrizioneCondizione = "Usato pochissimo e tenuto con cura. Non ci sono difetti visibili, graffi o scoloriture. Tutti i pezzi originali sono presenti e, se elettronico, funziona perfettamente."
+                },
+                new Condizione
+                {
+                    CondizioneId = 4,
+                    NomeCondizione = "Buono",
+                    DescrizioneCondizione = "Il giocattolo è stato usato e amato. Mostra segni di usura normali e leggeri (es. piccoli graffi superficiali o adesivi leggermente consumati). È comunque completo per poterci giocare e strutturalmente integro."
+                },
+                new Condizione
+                {
+                    CondizioneId = 5,
+                    NomeCondizione = "Accettabile",
+                    DescrizioneCondizione = "Mostra segni di usura evidenti dovuti a un uso frequente. Potrebbe avere graffi profondi, vernice scolorita o mancare di accessori non essenziali (che non impediscono il funzionamento principale del gioco)."
+                },
+                new Condizione
+                {
+                    CondizioneId = 6,
+                    NomeCondizione = "Con difetti",
+                    DescrizioneCondizione = "Il giocattolo presenta difetti importanti, componenti elettroniche non funzionanti, rotture o pezzi mancanti fondamentali. Viene venduto principalmente per essere riparato, riutilizzato per parti di ricambio (es. lotti di mattoncini Lego) o restauro."
+                }
             );
         }
     }

@@ -16,7 +16,7 @@ namespace ToysStore.Models
 
         [Required]
         [MaxLength(200)]
-        public string Indirizzo { get; set; }
+        public string Via { get; set; }
 
         [Required]
         [MaxLength(100)]

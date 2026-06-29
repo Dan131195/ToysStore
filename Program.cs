@@ -91,16 +91,30 @@ try
     {
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
 
-        // Definisci i ruoli che esisteranno nel tuo Marketplace
         string[] ruoliBase = { "User", "Admin" };
 
         foreach (var ruolo in ruoliBase)
         {
-            // Se il ruolo non esiste nel database, lo crea
             if (!await roleManager.RoleExistsAsync(ruolo))
             {
                 await roleManager.CreateAsync(new ApplicationRole { Name = ruolo });
             }
+        }
+    }
+
+    using (var scope = app.Services.CreateScope())
+    {
+        var services = scope.ServiceProvider;
+        try
+        {
+            var context = services.GetRequiredService<ApplicationDbContext>();
+
+            context.Database.Migrate();
+        }
+        catch (Exception ex)
+        {
+            var logger = services.GetRequiredService<ILogger<Program>>();
+            logger.LogError(ex, "Si è verificato un errore durante l'aggiornamento o il seeding del database.");
         }
     }
 
@@ -116,6 +130,8 @@ try
         app.UseSwagger();
         app.UseSwaggerUI();
     }
+
+    app.UseStaticFiles();
 
     app.UseHttpsRedirection();
 
