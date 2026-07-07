@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using System.Net.Mail;
-using System.Runtime;
 using Microsoft.Extensions.Options;
 using ToysStore.Models;
 
@@ -17,6 +16,7 @@ namespace ToysStore.Services
 
         public async Task SendEmailAsync(string to, string subject, string body)
         {
+
             using var client = new SmtpClient(_settings.Host, _settings.Port)
             {
                 Credentials = new NetworkCredential(_settings.User, _settings.Password),

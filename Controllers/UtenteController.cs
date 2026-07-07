@@ -1,6 +1,5 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ToysStore.DTOs.Utente;
@@ -46,15 +45,11 @@ namespace ToysStore.Controllers
                         : null
                 };
 
-                _logger.LogInformation(userId, response);
-
                 return Ok(response);
-
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Errore durante il caricamento del profilo");
-                return BadRequest(ex.Message);
+                return StatusCode(500, new { Message = "Errore durante il caricamento del profilo." });
             }
         }
 
@@ -76,15 +71,14 @@ namespace ToysStore.Controllers
 
                 if (!success)
                 {
-                    return NotFound(new { Message = "Si è verificato un errore. Profilo non trovato." });
+                    return NotFound(new { Message = "Proilo Utente non trovato." });
                 }
 
                 return Ok(new { Message = "Profilo aggiornato con successo!" });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Errore durante la modifica dell'utente");
-                return BadRequest(ex.Message);
+                return StatusCode(500, new { Message = "Errore durante la modifica del profilo." });
             }
 
         }
@@ -107,14 +101,14 @@ namespace ToysStore.Controllers
 
                 if (result.Succeeded)
                 {
-                    return Ok(new { Message = "Account eliminato definitivamente con successo. Ci dispiace vederti andare via!" });
+                    return Ok(new { Message = "Account eliminato definitivamente con successo." });
                 }
 
                 return BadRequest(new { Errors = result.Errors.Select(e => e.Description) });
             }
             catch (DbUpdateException)
             {
-               
+
                 return BadRequest(new
                 {
                     Message = "Impossibile eliminare l'account: hai uno storico di ordini (acquisti o vendite) collegati al tuo profilo. Per motivi fiscali non possiamo eliminare i dati. Contatta l'assistenza."
@@ -122,7 +116,7 @@ namespace ToysStore.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, new { Message = "Errore durante l'eliminazione del profilo." });
             }
         }
 
