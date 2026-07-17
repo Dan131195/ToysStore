@@ -13,12 +13,10 @@ namespace ToysStore.Controllers
     public class UtenteController : ControllerBase
     {
         private readonly UtenteService _utenteService;
-        private readonly ILogger<UtenteController> _logger;
 
-        public UtenteController(UtenteService utenteService, ILogger<UtenteController> logger)
+        public UtenteController(UtenteService utenteService)
         {
             _utenteService = utenteService;
-            _logger = logger;
         }
 
         // GET: api/Utente/MioProfilo 
@@ -47,7 +45,7 @@ namespace ToysStore.Controllers
 
                 return Ok(response);
             }
-            catch (Exception ex)
+            catch
             {
                 return StatusCode(500, new { Message = "Errore durante il caricamento del profilo." });
             }
@@ -76,7 +74,7 @@ namespace ToysStore.Controllers
 
                 return Ok(new { Message = "Profilo aggiornato con successo!" });
             }
-            catch (Exception ex)
+            catch 
             {
                 return StatusCode(500, new { Message = "Errore durante la modifica del profilo." });
             }
@@ -114,7 +112,7 @@ namespace ToysStore.Controllers
                     Message = "Impossibile eliminare l'account: hai uno storico di ordini (acquisti o vendite) collegati al tuo profilo. Per motivi fiscali non possiamo eliminare i dati. Contatta l'assistenza."
                 });
             }
-            catch (Exception ex)
+            catch 
             {
                 return StatusCode(500, new { Message = "Errore durante l'eliminazione del profilo." });
             }

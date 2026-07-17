@@ -34,7 +34,7 @@ namespace ToysStore.Data
             base.OnModelCreating(modelBuilder);
 
             // ==========================================
-            // 1. CONFIGURAZIONE IDENTITY (Many-to-Many User-Role)
+            // 1. CONFIGURAZIONE IDENTITY 
             // ==========================================
             modelBuilder.Entity<ApplicationUserRole>()
                 .HasKey(ur => new { ur.UserId, ur.RoleId });
@@ -52,7 +52,7 @@ namespace ToysStore.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
             // ==========================================
-            // 2. PROFILO UTENTE ESTESO (One-to-One)
+            // 2. PROFILO UTENTE ESTESO 
             // ==========================================
             modelBuilder.Entity<Utente>()
                 .HasOne(u => u.User)
@@ -105,7 +105,7 @@ namespace ToysStore.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
             // ==========================================
-            // 4. GESTIONE CARRELLO (Tabella di di Giunzione User-Prodotto)
+            // 4. GESTIONE CARRELLO 
             // ==========================================
             modelBuilder.Entity<ProdottoCarrello>()
                 .HasOne(pc => pc.User)
@@ -120,7 +120,7 @@ namespace ToysStore.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
             // ==========================================
-            // 5. GESTIONE ORDINI & CASSA (Flusso Vendite)
+            // 5. GESTIONE ORDINI & CASSA 
             // ==========================================
 
             // Relazione Diretta Utente -> Ordine
@@ -163,7 +163,7 @@ namespace ToysStore.Data
                 .HasPrecision(18, 2);
 
             // ==========================================
-            // 6. SEEDING DATA (Dati Iniziali di Sistema)
+            // 6. SEEDING DATA 
             // ==========================================
             modelBuilder.Entity<StatoOrdine>().HasData(
                 new StatoOrdine { StatoOrdineId = 1, Nome = "In Attesa" },

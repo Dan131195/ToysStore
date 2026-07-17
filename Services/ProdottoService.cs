@@ -159,7 +159,7 @@ namespace ToysStore.Services
                 _context.Prodotti.Add(nuovoProdotto);
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation($"Prodotto {nuovoProdotto.NomeGiocattolo} creato con successo con Id {nuovoProdotto.CategoriaId} da utente {nuovoProdotto.UserId}");
+                _logger.LogInformation($"Prodotto {nuovoProdotto.NomeGiocattolo} creato con successo con Id {nuovoProdotto.GiocattoloId} da utente {nuovoProdotto.UserId}");
 
                 return await GetProdottoByIdAsync(nuovoProdotto.GiocattoloId);
             }

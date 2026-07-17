@@ -51,7 +51,7 @@ namespace ToysStore.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Errore durante il salvataggio dell'immagine del profilo.");
-                throw ;
+                throw;
             }
         }
 
@@ -63,10 +63,13 @@ namespace ToysStore.Services
         {
             try
             {
+                var utente = await _context.Utenti
+               .Include(u => u.User)
+               .FirstOrDefaultAsync(u => u.UserId == userId);
+
                 _logger.LogInformation($"Profilo utente {userId} caricato con successo.");
-                return await _context.Utenti
-                .Include(u => u.User)
-                .FirstOrDefaultAsync(u => u.UserId == userId);
+
+                return utente;
 
             }
             catch (Exception ex)
@@ -121,7 +124,7 @@ namespace ToysStore.Services
                 await _userManager.UpdateAsync(utente.User);
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation($"Utente {userId} modificato con successo");
+                _logger.LogInformation($"Utente {userId} modificato con successo.");
                 return true;
             }
             catch (Exception ex)
@@ -158,7 +161,7 @@ namespace ToysStore.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Errore durante l'eliminazione del profilo {userId}");
+                _logger.LogError(ex, $"Errore durante l'eliminazione del profilo {userId}.");
                 throw;
             }
 
@@ -166,29 +169,32 @@ namespace ToysStore.Services
 
         // ---------------- INDIRIZZO ---------------- //
 
-        // TO DO - TRY CATCH DA COMPLETARE SU INDIRIZZO_UTENTE_CONTROLLER
-
-        // --- GET Indirizzi dell'utente
+        // --- GET Indirizzi Utente
         public async Task<IEnumerable<IndirizzoUtenteResponseDto>> GetIndirizziByUserIdAsync(string userId)
         {
             try
             {
-                return await _context.IndirizziUtenti
-                                .Where(i => i.UserId == userId)
-                                .Select(i => new IndirizzoUtenteResponseDto
-                                {
-                                    IndirizzoId = i.IndirizzoId,
-                                    Via = i.Via,
-                                    Citta = i.Citta,
-                                    CAP = i.CAP,
-                                    Provincia = i.Provincia,
-                                    NomeIndirizzo = i.NomeIndirizzo,
-                                    IsPredefinito = i.IsPredefinito
-                                })
-                                .ToListAsync();
+                var addresses = await _context.IndirizziUtenti
+                       .Where(i => i.UserId == userId)
+                       .Select(i => new IndirizzoUtenteResponseDto
+                       {
+                           IndirizzoId = i.IndirizzoId,
+                           Via = i.Via,
+                           Citta = i.Citta,
+                           CAP = i.CAP,
+                           Provincia = i.Provincia,
+                           NomeIndirizzo = i.NomeIndirizzo,
+                           IsPredefinito = i.IsPredefinito
+                       })
+                       .ToListAsync();
+
+                _logger.LogInformation($"N. {addresses.Count} indirizzi recuperati con successe dell'utente {userId}.");
+
+                return addresses;
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, $"Errore durante il caricamento deggli indirizzi utente {userId}.");
                 throw;
             }
         }
@@ -196,110 +202,149 @@ namespace ToysStore.Services
         // --- POST Indirizzo Utente
         public async Task<IndirizzoUtenteResponseDto?> AddIndirizzoAsync(string userId, IndirizzoUtenteCreateDto dto)
         {
-            var userExists = await _userManager.FindByIdAsync(userId);
-            if (userExists == null) return null;
+            try
+            {
+                var userExists = await _userManager.FindByIdAsync(userId);
+                if (userExists == null) return null;
 
-            if (dto.IsPredefinito)
-            {
-                await DisattivaPredefinitiEsistentiAsync(userId);
-            }
-            else
-            {
-                var hasAddresses = await _context.IndirizziUtenti.AnyAsync(i => i.UserId == userId);
-                if (!hasAddresses)
+                if (dto.IsPredefinito)
                 {
-                    dto.IsPredefinito = true;
+                    await DisattivaPredefinitiEsistentiAsync(userId);
                 }
+                else
+                {
+                    var hasAddresses = await _context.IndirizziUtenti.AnyAsync(i => i.UserId == userId);
+                    if (!hasAddresses)
+                    {
+                        dto.IsPredefinito = true;
+                    }
+                }
+
+                var nuovoIndirizzo = new IndirizzoUtente
+                {
+                    IndirizzoId = Guid.NewGuid(),
+                    UserId = userId,
+                    Via = dto.Via,
+                    Citta = dto.Citta,
+                    CAP = dto.CAP,
+                    Provincia = dto.Provincia,
+                    NomeIndirizzo = dto.NomeIndirizzo,
+                    IsPredefinito = dto.IsPredefinito
+                };
+
+                _context.IndirizziUtenti.Add(nuovoIndirizzo);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation($"Indirrizzo {nuovoIndirizzo.IndirizzoId} utente {userId} creato con successso.");
+
+                return new IndirizzoUtenteResponseDto
+                {
+                    IndirizzoId = nuovoIndirizzo.IndirizzoId,
+                    Via = nuovoIndirizzo.Via,
+                    Citta = nuovoIndirizzo.Citta,
+                    CAP = nuovoIndirizzo.CAP,
+                    Provincia = nuovoIndirizzo.Provincia,
+                    NomeIndirizzo = nuovoIndirizzo.NomeIndirizzo,
+                    IsPredefinito = nuovoIndirizzo.IsPredefinito
+                };
             }
-
-            var nuovoIndirizzo = new IndirizzoUtente
+            catch (Exception ex)
             {
-                IndirizzoId = Guid.NewGuid(),
-                UserId = userId,
-                Via = dto.Via,
-                Citta = dto.Citta,
-                CAP = dto.CAP,
-                Provincia = dto.Provincia,
-                NomeIndirizzo = dto.NomeIndirizzo,
-                IsPredefinito = dto.IsPredefinito
-            };
-
-            _context.IndirizziUtenti.Add(nuovoIndirizzo);
-            await _context.SaveChangesAsync();
-
-            return new IndirizzoUtenteResponseDto
-            {
-                IndirizzoId = nuovoIndirizzo.IndirizzoId,
-                Via = nuovoIndirizzo.Via,
-                Citta = nuovoIndirizzo.Citta,
-                CAP = nuovoIndirizzo.CAP,
-                Provincia = nuovoIndirizzo.Provincia,
-                NomeIndirizzo = nuovoIndirizzo.NomeIndirizzo,
-                IsPredefinito = nuovoIndirizzo.IsPredefinito
-            };
+                _logger.LogError(ex, $"Errore durante la creazione indirizzo utente {userId}.");
+                throw;
+            }
         }
 
         // --- PUT Indirizzo Utente
         public async Task<bool> UpdateIndirizzoAsync(string userId, Guid indirizzoId, IndirizzoUtenteUpdateDto dto)
         {
-            var address = await _context.IndirizziUtenti
-                .FirstOrDefaultAsync(i => i.IndirizzoId == indirizzoId && i.UserId == userId);
-
-            if (address == null) return false;
-
-            if (dto.IsPredefinito && !address.IsPredefinito)
+            try
             {
-                await DisattivaPredefinitiEsistentiAsync(userId);
+                var address = await _context.IndirizziUtenti
+                               .FirstOrDefaultAsync(i => i.IndirizzoId == indirizzoId && i.UserId == userId);
+
+                if (address == null) return false;
+
+                if (dto.IsPredefinito && !address.IsPredefinito)
+                {
+                    await DisattivaPredefinitiEsistentiAsync(userId);
+                }
+
+                address.Via = dto.Via;
+                address.Citta = dto.Citta;
+                address.CAP = dto.CAP;
+                address.Provincia = dto.Provincia;
+                address.NomeIndirizzo = dto.NomeIndirizzo;
+                address.IsPredefinito = dto.IsPredefinito;
+
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation($"Indirizzio {indirizzoId} utente {userId} modificato con successo.");
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Errore durante la modifica dell'indirizzo {indirizzoId} utente {userId}.");
+                throw;
             }
 
-            address.Via = dto.Via;
-            address.Citta = dto.Citta;
-            address.CAP = dto.CAP;
-            address.Provincia = dto.Provincia;
-            address.NomeIndirizzo = dto.NomeIndirizzo;
-            address.IsPredefinito = dto.IsPredefinito;
-
-            await _context.SaveChangesAsync();
-            return true;
         }
 
         // --- DELETE Indirizzo Utente
         public async Task<bool> DeleteIndirizzoAsync(string userId, Guid indirizzoId)
         {
-            var address = await _context.IndirizziUtenti
+            try
+            {
+                var address = await _context.IndirizziUtenti
                 .FirstOrDefaultAsync(i => i.IndirizzoId == indirizzoId && i.UserId == userId);
 
-            if (address == null) return false;
+                if (address == null) return false;
 
-            _context.IndirizziUtenti.Remove(address);
-            await _context.SaveChangesAsync();
+                _context.IndirizziUtenti.Remove(address);
+                await _context.SaveChangesAsync();
 
-            if (address.IsPredefinito)
-            {
-                var newAddress = await _context.IndirizziUtenti
-                    .Where(i => i.UserId == userId)
-                    .FirstOrDefaultAsync();
-
-                if (newAddress != null)
+                if (address.IsPredefinito)
                 {
-                    newAddress.IsPredefinito = true;
-                    await _context.SaveChangesAsync();
-                }
-            }
+                    var newAddress = await _context.IndirizziUtenti
+                        .Where(i => i.UserId == userId)
+                        .FirstOrDefaultAsync();
 
-            return true;
+                    if (newAddress != null)
+                    {
+                        newAddress.IsPredefinito = true;
+                        await _context.SaveChangesAsync();
+                    }
+                }
+
+                _logger.LogInformation($"Indirizzio {indirizzoId} utente {userId} eliminato con successo.");
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Errore durante l'eliminazione dell'indirizzio {indirizzoId} utente {userId}.");
+                throw;
+            }
         }
 
         // --- Disattivazione indirizzo predefinito 
         private async Task DisattivaPredefinitiEsistentiAsync(string userId)
         {
-            var addresses = await _context.IndirizziUtenti
-                .Where(i => i.UserId == userId && i.IsPredefinito)
-                .ToListAsync();
-
-            foreach (var p in addresses)
+            try
             {
-                p.IsPredefinito = false;
+                var addresses = await _context.IndirizziUtenti
+                                .Where(i => i.UserId == userId && i.IsPredefinito)
+                                .ToListAsync();
+
+                foreach (var p in addresses)
+                {
+                    p.IsPredefinito = false;
+                }
+            }
+            catch
+            {
+                return;
             }
         }
     }
