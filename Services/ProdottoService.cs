@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 using ToysStore.Data;
 using ToysStore.DTOs.Prodotto;
 using ToysStore.Models;
@@ -266,8 +265,6 @@ namespace ToysStore.Services
             {
                 var prodotto = await _context.Prodotti
                     .Include(p => p.ImmaginiProdotto)
-                    .Include(p => p.Categoria)
-                    .Include(p => p.Condizione)
                     .FirstOrDefaultAsync(p => p.GiocattoloId == prodottoId);
 
                 if (prodotto == null) return null;
@@ -278,7 +275,7 @@ namespace ToysStore.Services
                     string uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads", "prodotti");
                     if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
 
-                    foreach (var file in img) 
+                    foreach (var file in img)
                     {
                         if (file.Length > 0)
                         {
@@ -311,6 +308,49 @@ namespace ToysStore.Services
                 _logger.LogError(ex, $"Errore nell'aggiunta dell'immagine del prodtto {prodottoId} utente {userId}");
                 throw;
             }
+        }
+
+        // - DELETE :Immagine Prodotto
+
+        public async Task<ProdottoResponseDto?> DeleteImmagineProdotto(Guid prodottoId, Guid imgId, string userId)
+        {
+            try
+            {
+                var prodotto = await _context.Prodotti
+                    .Include(p => p.ImmaginiProdotto)
+                    .FirstOrDefaultAsync(p => p.GiocattoloId == prodottoId);
+
+                if (prodotto == null) return null;
+                if (prodotto.UserId != userId) throw new UnauthorizedAccessException("Non puoi modificare questo annuncio");
+
+                var img = prodotto.ImmaginiProdotto.FirstOrDefault(i => i.ImmagineId == imgId);
+
+                if (img == null) return null;
+                if (img != null)
+                {
+                    if (!string.IsNullOrEmpty(img.UrlImmagine))
+                    {
+                        string relativePath = img.UrlImmagine.TrimStart('/');
+                        relativePath = relativePath.Replace("/", Path.DirectorySeparatorChar.ToString());
+                        string path = Path.Combine(_environment.WebRootPath, relativePath);
+
+                        if (System.IO.File.Exists(relativePath))
+                        {
+                            System.IO.File.Delete(relativePath);
+                        }
+                    }
+                    prodotto.ImmaginiProdotto.Remove(img);
+                    _logger.LogInformation($"Immagine {imgId} del prodotto {prodottoId} utente {userId} cancellata con successo.");
+                }
+
+                return MapToResponseDto(prodotto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Errore nella cancellazione dell'immagine {imgId} del prodotto {prodottoId} utente {userId}");
+                throw;
+            }
+            ;
         }
     }
 }
