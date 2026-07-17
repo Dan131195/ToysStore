@@ -211,10 +211,33 @@ namespace ToysStore.Services
         {
             try
             {
-                var prodotto = await _context.Prodotti.FindAsync(id);
+                var prodotto = await _context.Prodotti
+                    .Include(p => p.ImmaginiProdotto)
+                    .FirstOrDefaultAsync(p => p.GiocattoloId == id);
+                
                 if (prodotto == null) return false;
-
                 if (prodotto.UserId != userId) return false;
+
+                if (prodotto.ImmaginiProdotto != null && prodotto.ImmaginiProdotto.Any())
+                {
+                    foreach (var immagine in prodotto.ImmaginiProdotto)
+                    {
+                        if (!string.IsNullOrEmpty(immagine.UrlImmagine))
+                        {
+                            string percorsoRelativo = immagine.UrlImmagine.TrimStart('/');
+                            percorsoRelativo = percorsoRelativo.Replace("/", Path.DirectorySeparatorChar.ToString());
+
+                            string percorsoFisico = Path.Combine(_environment.WebRootPath, percorsoRelativo);
+
+                            if (System.IO.File.Exists(percorsoFisico))
+                            {
+                                System.IO.File.Delete(percorsoFisico);
+                                _logger.LogInformation($"File immagine eliminato {percorsoFisico}");
+                            }
+
+                        }
+                    }
+                }
 
                 _context.Prodotti.Remove(prodotto);
                 await _context.SaveChangesAsync();
@@ -230,8 +253,5 @@ namespace ToysStore.Services
             }
 
         }
-
-
-
     }
 }
