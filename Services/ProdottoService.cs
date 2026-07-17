@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 using ToysStore.Data;
 using ToysStore.DTOs.Prodotto;
 using ToysStore.Models;
@@ -34,7 +35,7 @@ namespace ToysStore.Services
         }
 
 
-        // --- GET: Lista tutti prodotti
+        // - GET: Lista tutti prodotti
         public async Task<IEnumerable<ProdottoResponseDto>> GetAllProdottiAsync()
         {
             try
@@ -58,7 +59,7 @@ namespace ToysStore.Services
 
         }
 
-        // --- GET: Prodotti di un singolo utente ---
+        // - GET: Prodotti di un singolo utente 
         public async Task<IEnumerable<ProdottoResponseDto>> GetProdottiByUserIdAsync(string userId)
         {
             try
@@ -81,7 +82,7 @@ namespace ToysStore.Services
             }
         }
 
-        // --- GET: Singolo prodotto tramite ID ---
+        // - GET: Singolo prodotto tramite ID 
         public async Task<ProdottoResponseDto?> GetProdottoByIdAsync(Guid id)
         {
             try
@@ -105,12 +106,12 @@ namespace ToysStore.Services
             }
         }
 
-        // --- POST: Crea un nuovo prodotto ---
+        // - POST: Crea un nuovo prodotto 
         public async Task<ProdottoResponseDto> CreateProdottoAsync(ProdottoCreateDto dto, string userId)
         {
             try
             {
-                var nuovoProdotto = new Prodotto
+                var newProdotto = new Prodotto
                 {
                     GiocattoloId = Guid.NewGuid(),
                     NomeGiocattolo = dto.NomeGiocattolo,
@@ -125,43 +126,45 @@ namespace ToysStore.Services
                 if (dto.Immagini != null && dto.Immagini.Any())
                 {
                     // Trova la cartella: wwwroot/uploads/prodotti
-                    string cartellaUploads = Path.Combine(_environment.WebRootPath, "uploads", "prodotti");
+                    string uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads", "prodotti");
 
                     // Se la cartella non esiste, la crea in automatico
-                    if (!Directory.Exists(cartellaUploads))
+                    if (!Directory.Exists(uploadsFolder))
                     {
-                        Directory.CreateDirectory(cartellaUploads);
+                        Directory.CreateDirectory(uploadsFolder);
                     }
 
                     foreach (var file in dto.Immagini)
                     {
                         if (file.Length > 0)
                         {
-                            string nomeFileUnico = Guid.NewGuid().ToString() + "_" + file.FileName;
+                            Guid idImg = Guid.NewGuid();
 
-                            string percorsoFisico = Path.Combine(cartellaUploads, nomeFileUnico);
+                            string fileName = idImg.ToString() + " _ " + newProdotto.NomeGiocattolo;
 
-                            using (var fileStream = new FileStream(percorsoFisico, FileMode.Create))
+                            string path = Path.Combine(uploadsFolder, fileName);
+
+                            using (var fileStream = new FileStream(path, FileMode.Create))
                             {
                                 await file.CopyToAsync(fileStream);
                             }
 
-                            nuovoProdotto.ImmaginiProdotto.Add(new ImmagineProdotto
+                            newProdotto.ImmaginiProdotto.Add(new ImmagineProdotto
                             {
-                                ImmagineId = Guid.NewGuid(),
-                                UrlImmagine = $"/uploads/prodotti/{nomeFileUnico}", 
+                                ImmagineId = idImg,
+                                UrlImmagine = $"/uploads/prodotti/{fileName}",
                                 AltText = $"Immagine di {dto.NomeGiocattolo}"
                             });
                         }
                     }
                 }
 
-                _context.Prodotti.Add(nuovoProdotto);
+                _context.Prodotti.Add(newProdotto);
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation($"Prodotto {nuovoProdotto.NomeGiocattolo} creato con successo con Id {nuovoProdotto.GiocattoloId} da utente {nuovoProdotto.UserId}");
+                _logger.LogInformation($"Prodotto {newProdotto.NomeGiocattolo} creato con successo con Id {newProdotto.GiocattoloId} da utente {newProdotto.UserId}");
 
-                return await GetProdottoByIdAsync(nuovoProdotto.GiocattoloId);
+                return await GetProdottoByIdAsync(newProdotto.GiocattoloId);
             }
             catch (Exception ex)
             {
@@ -171,7 +174,7 @@ namespace ToysStore.Services
 
         }
 
-        // --- PUT: Modifica un prodotto esistente ---
+        // - PUT: Modifica un prodotto esistente 
         public async Task<ProdottoResponseDto?> UpdateProdottoAsync(Guid id, ProdottoUpdateDto dto, string userId)
         {
             try
@@ -206,7 +209,7 @@ namespace ToysStore.Services
 
         }
 
-        // --- DELETE: Elimina un prodotto ---
+        // - DELETE: Elimina un prodotto 
         public async Task<bool> DeleteProdottoAsync(Guid id, string userId)
         {
             try
@@ -214,7 +217,7 @@ namespace ToysStore.Services
                 var prodotto = await _context.Prodotti
                     .Include(p => p.ImmaginiProdotto)
                     .FirstOrDefaultAsync(p => p.GiocattoloId == id);
-                
+
                 if (prodotto == null) return false;
                 if (prodotto.UserId != userId) return false;
 
@@ -224,15 +227,15 @@ namespace ToysStore.Services
                     {
                         if (!string.IsNullOrEmpty(immagine.UrlImmagine))
                         {
-                            string percorsoRelativo = immagine.UrlImmagine.TrimStart('/');
-                            percorsoRelativo = percorsoRelativo.Replace("/", Path.DirectorySeparatorChar.ToString());
+                            string relativePath = immagine.UrlImmagine.TrimStart('/');
+                            relativePath = relativePath.Replace("/", Path.DirectorySeparatorChar.ToString());
 
-                            string percorsoFisico = Path.Combine(_environment.WebRootPath, percorsoRelativo);
+                            string path = Path.Combine(_environment.WebRootPath, relativePath);
 
-                            if (System.IO.File.Exists(percorsoFisico))
+                            if (System.IO.File.Exists(path))
                             {
-                                System.IO.File.Delete(percorsoFisico);
-                                _logger.LogInformation($"File immagine eliminato {percorsoFisico}");
+                                System.IO.File.Delete(path);
+                                _logger.LogInformation($"File immagine eliminato {path}");
                             }
 
                         }
@@ -251,7 +254,63 @@ namespace ToysStore.Services
                 _logger.LogError(ex, $"Erore nell'eliminazione del prodotto {id} dell'utente {userId}");
                 throw;
             }
+        }
 
+        // ------------ IMMAGINI PRODOTTI ------------
+
+        // - POST : Immagine prodotto
+
+        public async Task<ProdottoResponseDto?> AddImmagineProdottoAsync(Guid prodottoId, IEnumerable<IFormFile> img, string userId)
+        {
+            try
+            {
+                var prodotto = await _context.Prodotti
+                    .Include(p => p.ImmaginiProdotto)
+                    .Include(p => p.Categoria)
+                    .Include(p => p.Condizione)
+                    .FirstOrDefaultAsync(p => p.GiocattoloId == prodottoId);
+
+                if (prodotto == null) return null;
+                if (prodotto.UserId != userId) throw new UnauthorizedAccessException("Non puoi modificare queso annuncio");
+
+                if (img != null && img.Any())
+                {
+                    string uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads", "prodotti");
+                    if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+
+                    foreach (var file in img) 
+                    {
+                        if (file.Length > 0)
+                        {
+                            Guid idImg = Guid.NewGuid();
+
+                            string fileName = idImg.ToString() + " _ " + prodotto.GiocattoloId;
+                            string path = Path.Combine(uploadsFolder, fileName);
+
+                            using (var fileStream = new FileStream(path, FileMode.Create))
+                            {
+                                await file.CopyToAsync(fileStream);
+                            }
+
+                            prodotto.ImmaginiProdotto.Add(new ImmagineProdotto
+                            {
+                                ImmagineId = idImg,
+                                UrlImmagine = $"uploads/prodotti/{fileName}",
+                                AltText = $"Immagine prodotto {prodotto.NomeGiocattolo}"
+                            });
+                        }
+
+                        await _context.SaveChangesAsync();
+                        _logger.LogInformation($"Immagine aggiunta con successo per il prodotto {prodottoId} utente {userId}.");
+                    }
+                }
+                return MapToResponseDto(prodotto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Errore nell'aggiunta dell'immagine del prodtto {prodottoId} utente {userId}");
+                throw;
+            }
         }
     }
 }

@@ -23,7 +23,7 @@ namespace ToysStore.Services
             _environment = environment;
         }
 
-        // --- Immagine Profilo
+        // - Immagine Profilo
 
         public async Task<string?> SaveImageAsync(IFormFile? imageFile)
         {
@@ -57,7 +57,7 @@ namespace ToysStore.Services
 
 
 
-        // --- GET utente
+        // - GET utente
 
         public async Task<Utente?> GetUtenteByUserIdAsync(string userId)
         {
@@ -79,7 +79,7 @@ namespace ToysStore.Services
             }
         }
 
-        // --- PUT utente
+        // - PUT utente
 
         public async Task<bool> UpdateUtenteAsync(string userId, UtenteUpdateDto dto)
         {
@@ -135,7 +135,7 @@ namespace ToysStore.Services
 
         }
 
-        // --- DELETE utente
+        // - DELETE utente
 
         public async Task<IdentityResult?> DeleteUtenteAsync(string userId)
         {
@@ -169,7 +169,7 @@ namespace ToysStore.Services
 
         // ---------------- INDIRIZZO ---------------- //
 
-        // --- GET Indirizzi Utente
+        // - GET Indirizzi Utente
         public async Task<IEnumerable<IndirizzoUtenteResponseDto>> GetIndirizziByUserIdAsync(string userId)
         {
             try
@@ -199,7 +199,7 @@ namespace ToysStore.Services
             }
         }
 
-        // --- POST Indirizzo Utente
+        // - POST Indirizzo Utente
         public async Task<IndirizzoUtenteResponseDto?> AddIndirizzoAsync(string userId, IndirizzoUtenteCreateDto dto)
         {
             try
@@ -255,7 +255,7 @@ namespace ToysStore.Services
             }
         }
 
-        // --- PUT Indirizzo Utente
+        // - PUT Indirizzo Utente
         public async Task<bool> UpdateIndirizzoAsync(string userId, Guid indirizzoId, IndirizzoUtenteUpdateDto dto)
         {
             try
@@ -291,7 +291,7 @@ namespace ToysStore.Services
 
         }
 
-        // --- DELETE Indirizzo Utente
+        // - DELETE Indirizzo Utente
         public async Task<bool> DeleteIndirizzoAsync(string userId, Guid indirizzoId)
         {
             try
@@ -328,7 +328,7 @@ namespace ToysStore.Services
             }
         }
 
-        // --- Disattivazione indirizzo predefinito 
+        // - Disattivazione indirizzo predefinito 
         private async Task DisattivaPredefinitiEsistentiAsync(string userId)
         {
             try
