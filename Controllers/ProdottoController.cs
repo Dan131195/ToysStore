@@ -18,7 +18,7 @@ namespace ToysStore.Controllers
             _prodottoService = prodottoService;
         }
 
-        // GET: api/prodotti 
+        // GET: api/prodotto 
         [HttpGet("all")]
         public async Task<ActionResult<IEnumerable<ProdottoResponseDto>>> GetAll()
         {
@@ -34,7 +34,7 @@ namespace ToysStore.Controllers
 
         }
 
-        // GET: api/prodotti/{id} 
+        // GET: api/prodotto/{id} 
         [HttpGet("{id}")]
         public async Task<ActionResult<ProdottoResponseDto>> GetById(Guid id)
         {
@@ -51,7 +51,7 @@ namespace ToysStore.Controllers
             }
         }
 
-        // GET: api/prodotti/utente/{userId} 
+        // GET: api/prodotto/utente/{userId} 
         [HttpGet("utente/{userId}")]
         public async Task<ActionResult<IEnumerable<ProdottoResponseDto>>> GetByUtente(string userId)
         {
@@ -67,7 +67,7 @@ namespace ToysStore.Controllers
 
         }
 
-        // POST: api/prodotti 
+        // POST: api/prodotto
         [HttpPost]
         [Authorize]
         public async Task<ActionResult<ProdottoResponseDto>> Create([FromForm] ProdottoCreateDto dto)
@@ -87,7 +87,7 @@ namespace ToysStore.Controllers
             }
         }
 
-        // PUT: api/prodotti/{id} 
+        // PUT: api/prodotto/{id} 
         [HttpPut("{id}")]
         [Authorize]
         public async Task<ActionResult<ProdottoResponseDto>> Update(Guid id, [FromBody] ProdottoUpdateDto dto)
@@ -116,7 +116,7 @@ namespace ToysStore.Controllers
 
         }
 
-        // DELETE: api/prodotti/{id} 
+        // DELETE: api/prodotto/{id} 
         [HttpDelete("{id}")]
         [Authorize]
         public async Task<IActionResult> Delete(Guid id)
@@ -136,5 +136,12 @@ namespace ToysStore.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        // ------- Immagini Porodotto -------
+
+        // POST: api/prodotto/{id}/immagini
+        [HttpPost("{id}/immagini")]
+        [Authorize]
+
     }
 }
