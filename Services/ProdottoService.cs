@@ -218,7 +218,7 @@ namespace ToysStore.Services
                     .FirstOrDefaultAsync(p => p.GiocattoloId == id);
 
                 if (prodotto == null) return false;
-                if (prodotto.UserId != userId) return false;
+                if (prodotto.UserId != userId) throw new UnauthorizedAccessException("Non puoi modificare questo annuncio");
 
                 if (prodotto.ImmaginiProdotto != null && prodotto.ImmaginiProdotto.Any())
                 {

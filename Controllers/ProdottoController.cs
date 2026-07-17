@@ -131,6 +131,10 @@ namespace ToysStore.Controllers
 
                 return NoContent();
             }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
@@ -142,6 +146,32 @@ namespace ToysStore.Controllers
         // POST: api/prodotto/{id}/immagini
         [HttpPost("{id}/immagini")]
         [Authorize]
+        public async Task<IActionResult> AddImmagini(Guid id, [FromForm] IEnumerable<IFormFile> img)
+        {
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(userId)) return Unauthorized();
 
+                if(img == null || !img.Any())
+                {
+                    return BadRequest("Nessuna immagine selezionata.");
+                }
+
+                var newProdotto = _prodottoService.AddImmagineProdottoAsync(id, img, userId);
+
+                if (newProdotto == null) return NotFound("Prodotto non trovato");
+
+                return Ok(newProdotto);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { Message = "Errore durante la cancellazione dell'immagine del prodotto." });
+            }
+        }
     }
 }
