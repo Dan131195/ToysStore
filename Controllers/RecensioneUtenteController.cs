@@ -7,11 +7,11 @@ namespace ToysStore.Controllers
     [ApiController]
     public class RecensioneUtenteController : ControllerBase
     {
-        private readonly RecensioneUtenteService _recensioneProdottoervice;
+        private readonly RecensioneUtenteService _recensioneProdottoService;
 
         public RecensioneUtenteController(RecensioneUtenteService recesnioneProdottoervice)
         {
-            _recensioneProdottoervice = recesnioneProdottoervice;
+            _recensioneProdottoService = recesnioneProdottoervice;
         }
     }
 }
