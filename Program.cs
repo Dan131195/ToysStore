@@ -82,6 +82,7 @@ try
     builder.Services.AddScoped<EmailService>();
     builder.Services.AddScoped<ProdottoService>();
     builder.Services.AddScoped<UtenteService>();
+    builder.Services.AddScoped<RecensioneUtenteService>();
 
     builder.Host.UseSerilog();
 
