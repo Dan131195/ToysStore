@@ -15,7 +15,7 @@ namespace ToysStore.Services
 
         public RecensioneUtenteService(ApplicationDbContext context, ILogger<RecensioneUtenteService> logger)
         {
-            _context = context;
+
             _logger = logger;
         }
 
