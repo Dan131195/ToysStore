@@ -27,9 +27,9 @@ namespace ToysStore.Controllers
                 var prodotti = await _prodottoService.GetAllProdottiAsync();
                 return Ok(prodotti);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, new { Message = "Errore durante il caricamento dei prodotti." });
             }
 
         }
@@ -45,9 +45,9 @@ namespace ToysStore.Controllers
 
                 return Ok(prodotto);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, new { Message = "Errore durante il caricamento del prodotto." });
             }
         }
 
@@ -60,9 +60,9 @@ namespace ToysStore.Controllers
                 var prodotti = await _prodottoService.GetProdottiByUserIdAsync(userId);
                 return Ok(prodotti);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, new { Message = "Errore durante il caricamento dei prodotti." });
             }
 
         }
@@ -81,9 +81,9 @@ namespace ToysStore.Controllers
 
                 return CreatedAtAction(nameof(GetById), new { id = nuovoProdotto.GiocattoloId }, nuovoProdotto);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, new { Message = "Errore durante la creazone del prodotto." });
             }
         }
 
@@ -109,9 +109,9 @@ namespace ToysStore.Controllers
                     return Forbid(ex.Message);
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, new { Message = "Errore durante la modifca del prodotto." });
             }
 
         }
@@ -135,9 +135,9 @@ namespace ToysStore.Controllers
             {
                 return Forbid(ex.Message);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, new { Message = "Errore durante la cancellazione del prodotto." });
             }
         }
 
@@ -171,6 +171,32 @@ namespace ToysStore.Controllers
             catch (Exception)
             {
                 return StatusCode(500, new { Message = "Errore durante la cancellazione dell'immagine del prodotto." });
+            }
+        }
+
+        // DELETE: api/prodotto/{prodottoId}/immagini/{immagineId}
+        [HttpDelete("{prodottoId}/immagini/{immagineId}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteImmagine(Guid prodottoId, Guid ImmagineId)
+        {
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+                var newProdotto = _prodottoService.DeleteImmagineProdotto(prodottoId, ImmagineId, userId);
+
+                if (newProdotto == null) return NotFound("Immagine del prodtto non trovata.");
+
+                return Ok(newProdotto);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Si è verificato un errore durante l'eliminazione dell'immagine.");
             }
         }
     }
