@@ -24,7 +24,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DTOs\RecensioneProdotto\" />
     <Folder Include="wwwroot\uploads\utenti\" />
   </ItemGroup>
 

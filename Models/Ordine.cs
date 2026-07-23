@@ -27,7 +27,7 @@ namespace ToysStore.Models
 
         [MaxLength(10)]
         public string? CAPSnapshot { get; set; }
-
+        public DateTime DataOrdine { get; set; } = DateTime.UtcNow;
         public ICollection<ProdottoOrdine> ProdottiOrdine { get; set; } = new List<ProdottoOrdine>();
 
         [Required]
@@ -35,6 +35,6 @@ namespace ToysStore.Models
         [ForeignKey("StatoOrdineId")]
         public StatoOrdine StatoOrdine { get; set; }
 
-        public DateTime DataOrdine { get; set; } = DateTime.UtcNow;
+        public RecensioneUtente? Recensione { get; set; }
     }
 }

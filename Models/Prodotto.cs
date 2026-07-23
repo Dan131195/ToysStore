@@ -37,7 +37,6 @@ namespace ToysStore.Models
         public Condizione? Condizione { get; set; }
 
         public ICollection<ImmagineProdotto> ImmaginiProdotto { get; set; } = new List<ImmagineProdotto>();
-        public ICollection<RecensioneProdotto> RecensioniProdotto { get; set; } = new List<RecensioneProdotto>();
         public ICollection<ProdottoCarrello>? ProdottiCarrello { get; set; }
         public ICollection<ProdottoOrdine>? ProdottiOrdine { get; set; } 
     }

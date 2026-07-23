@@ -19,6 +19,9 @@ namespace ToysStore.Models
 
         [ForeignKey("UserId")]
         public ApplicationUser User { get; set; }
+
+        public ICollection<RecensioneUtente> RecensioniRicevute { get; set; } = new List<RecensioneUtente>();
+        public ICollection<RecensioneUtente> RecensioniScritte { get; set; } = new List<RecensioneUtente>();
         
     }
 }

@@ -16,7 +16,7 @@ namespace ToysStore.Data
 
         public DbSet<Prodotto> Prodotti { get; set; }
         public DbSet<ImmagineProdotto> ImmaginiProdotto { get; set; }
-        public DbSet<RecensioneProdotto> RecensioniProdotto { get; set; }
+        public DbSet<RecensioneUtente> RecensioniUtente { get; set; }
         public DbSet<Categoria> Categorie { get; set; }
         public DbSet<Condizione> Condizioni { get; set; }
 
@@ -30,12 +30,10 @@ namespace ToysStore.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Fondamentale: Chiama sempre il base.OnModelCreating per configurare Identity!
             base.OnModelCreating(modelBuilder);
 
-            // ==========================================
-            // 1. CONFIGURAZIONE IDENTITY 
-            // ==========================================
+            // - 1. CONFIGURAZIONE IDENTITY 
+
             modelBuilder.Entity<ApplicationUserRole>()
                 .HasKey(ur => new { ur.UserId, ur.RoleId });
 
@@ -51,9 +49,8 @@ namespace ToysStore.Data
                 .HasForeignKey(ur => ur.RoleId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // ==========================================
-            // 2. PROFILO UTENTE ESTESO 
-            // ==========================================
+            // - 2. PROFILO UTENTE ESTESO 
+
             modelBuilder.Entity<Utente>()
                 .HasOne(u => u.User)
                 .WithOne(au => au.Utente)
@@ -67,9 +64,20 @@ namespace ToysStore.Data
                 .HasForeignKey(i => i.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // ==========================================
-            // 3. CATALOGO PRODOTTI & ELEMENTI CORRELATI
-            // ==========================================
+            // RecensioneUtente (One-to-Many)
+            modelBuilder.Entity<RecensioneUtente>()
+                .HasOne(r => r.Acquirente)
+                .WithMany(u => u.RecensioniScritte)
+                .HasForeignKey(r => r.AcquirenteId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<RecensioneUtente>()
+                .HasOne(r => r.Venditore)
+                .WithMany(u => u.RecensioniRicevute)
+                .HasForeignKey(r => r.VenditoreId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // - 3. CATALOGO PRODOTTI & ELEMENTI CORRELATI
 
             // Precisione decimale per il prezzo del giocattolo nel catalogo
             modelBuilder.Entity<Prodotto>()
@@ -90,23 +98,8 @@ namespace ToysStore.Data
                 .HasForeignKey(p => p.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Prodotto - RecensioneProdotto (One-to-Many)
-            modelBuilder.Entity<RecensioneProdotto>()
-                .HasOne(r => r.Prodotto)
-                .WithMany(p => p.RecensioniProdotto)
-                .HasForeignKey(r => r.ProdottoId)
-                .OnDelete(DeleteBehavior.Cascade);
+            // - 4. GESTIONE CARRELLO 
 
-            // Autore della Recensione (User - Recensione)
-            modelBuilder.Entity<RecensioneProdotto>()
-                .HasOne(r => r.User)
-                .WithMany(u => u.RecensioniProdotto)
-                .HasForeignKey(r => r.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // ==========================================
-            // 4. GESTIONE CARRELLO 
-            // ==========================================
             modelBuilder.Entity<ProdottoCarrello>()
                 .HasOne(pc => pc.User)
                 .WithMany(u => u.ProdottiCarrello)
@@ -119,16 +112,20 @@ namespace ToysStore.Data
                 .HasForeignKey(pc => pc.ProdottoId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // ==========================================
-            // 5. GESTIONE ORDINI & CASSA 
-            // ==========================================
+            // - 5. GESTIONE ORDINI & CASSA 
 
             // Relazione Diretta Utente -> Ordine
             modelBuilder.Entity<Ordine>()
                 .HasOne(o => o.User)
                 .WithMany(u => u.Ordini)
                 .HasForeignKey(o => o.UserId)
-                .OnDelete(DeleteBehavior.Restrict); // Impedisce la cancellazione degli ordini se elimini l'utente (integrità fiscale)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<RecensioneUtente>()
+                .HasOne(r => r.Ordine)
+                .WithOne(o => o.Recensione)
+                .HasForeignKey<RecensioneUtente>(r => r.OrdineId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // StatoOrdine - Ordine (One-to-Many)
             modelBuilder.Entity<Ordine>()
@@ -142,14 +139,14 @@ namespace ToysStore.Data
                 .HasOne(po => po.Ordine)
                 .WithMany(o => o.ProdottiOrdine)
                 .HasForeignKey(po => po.OrdineId)
-                .OnDelete(DeleteBehavior.Cascade); // Se l'ordine viene cancellato, le sue righe spariscono
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Prodotto - Riga d'Ordine (One-to-Many)
             modelBuilder.Entity<ProdottoOrdine>()
                 .HasOne(po => po.Prodotto)
                 .WithMany(p => p.ProdottiOrdine)
                 .HasForeignKey(po => po.ProdottoId)
-                .OnDelete(DeleteBehavior.Restrict); // Non puoi cancellare un Prodotto dal catalogo se è presente in un vecchio ordine
+                .OnDelete(DeleteBehavior.Restrict);
 
             // Configurazioni Decimali per l'Ordine (Prezzi storici bloccati)
             modelBuilder.Entity<Ordine>()
@@ -162,9 +159,8 @@ namespace ToysStore.Data
                 .HasColumnType("decimal(18,2)")
                 .HasPrecision(18, 2);
 
-            // ==========================================
-            // 6. SEEDING DATA 
-            // ==========================================
+            // - 6. SEEDING DATA 
+
             modelBuilder.Entity<StatoOrdine>().HasData(
                 new StatoOrdine { StatoOrdineId = 1, Nome = "In Attesa" },
                 new StatoOrdine { StatoOrdineId = 2, Nome = "Confermato" },

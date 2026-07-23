@@ -4,7 +4,7 @@ using ToysStore.Models.Auth;
 
 namespace ToysStore.Models
 {
-    public class RecensioneProdotto
+    public class RecensioneUtente
     {
         [Key]
         public Guid RecensioneId { get; set; }
@@ -17,17 +17,22 @@ namespace ToysStore.Models
         public int Valutazione { get; set; }
 
         [Required]
-        public Guid ProdottoId { get; set; }
-
-        [ForeignKey("ProdottoId")]
-        public Prodotto Prodotto { get; set; }
-
-        [Required]
-        public string UserId { get; set; }
-        [ForeignKey("UserId")]
-        public ApplicationUser User { get; set; }
-
-        [Required]
         public DateTime DataRecensione { get; set; }
+
+        [Required]
+        public Guid AcquirenteId { get; set; }
+        [ForeignKey("AcquirenteId")]
+        public Utente Acquirente { get; set; }
+
+        [Required]
+        public Guid VenditoreId { get; set; }
+        [ForeignKey("VenditoreId")]
+        public Utente Venditore { get; set; }
+
+        [Required]
+        public Guid OrdineId { get; set; }
+        [ForeignKey("OrdineId")]
+        public Ordine Ordine { get; set; }
+
     }
 }
