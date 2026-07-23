@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using ToysStore.Data;
 using ToysStore.DTOs.RecensioneProdotto;
 using ToysStore.Models;
+using ToysStore.Models.Auth;
 
 namespace ToysStore.Services
 {
@@ -19,7 +20,7 @@ namespace ToysStore.Services
         }
 
         // - GET: Lista recensioni Utente
-        public async Task<List<RecensioneUtenteDto>> GetAllRecensioniUtente(Guid utenteId)
+        public async Task<List<RecensioneUtenteDto>> GetAllRecensioniUtenteAsync(Guid utenteId)
         {
             try
             {
@@ -49,10 +50,18 @@ namespace ToysStore.Services
         }
 
         // - POST: Recensione Utente
-        public async Task<bool> AddRecensioneUtente(CreateRecensioneUtenteDto dto)
+        public async Task<bool> AddRecensioneUtenteAsync(CreateRecensioneUtenteDto dto, string userId)
         {
             try
             {
+                var user = await _context.Utenti
+                    .FirstOrDefaultAsync(u => u.UserId == userId);
+                if (user == null) return false;
+
+                var ordine = await _context.Ordini
+                    .FirstOrDefaultAsync(o => o.OrdineId == dto.OrdineId);
+                if (ordine == null || ordine.UserId != userId) return false;
+
                 // Controlla se l'ordine collegato ha già una recensione
                 bool controlloRecensioneOrdine = await _context.RecensioniUtente
                     .AnyAsync(r => r.OrdineId == dto.OrdineId);
@@ -64,7 +73,7 @@ namespace ToysStore.Services
                     RecensioneId = Guid.NewGuid(),
                     OrdineId = dto.OrdineId,
                     VenditoreId = dto.VenditoreId,
-                    AcquirenteId = dto.AcquirenteId,
+                    AcquirenteId = user.UtenteId,
                     Valutazione = dto.Valutazione,
                     RecensioneTesto = dto.RecensioneTesto,
                     DataRecensione = DateTime.UtcNow
@@ -74,6 +83,8 @@ namespace ToysStore.Services
 
                 _context.RecensioniUtente.Add(recensione);
                 await _context.SaveChangesAsync();
+
+                return true;
             }
             catch(Exception ex)
             {
