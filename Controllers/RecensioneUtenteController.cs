@@ -5,11 +5,11 @@ namespace ToysStore.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class RecensioneProdottoController : ControllerBase
+    public class RecensioneUtenteController : ControllerBase
     {
-        private readonly RecensioneProdottoService _recensioneProdottoervice;
+        private readonly RecensioneUtenteService _recensioneProdottoervice;
 
-        public RecensioneProdottoController(RecensioneProdottoService recesnioneProdottoervice)
+        public RecensioneUtenteController(RecensioneUtenteService recesnioneProdottoervice)
         {
             _recensioneProdottoervice = recesnioneProdottoervice;
         }
