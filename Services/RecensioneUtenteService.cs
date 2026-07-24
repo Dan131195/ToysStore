@@ -92,7 +92,33 @@ namespace ToysStore.Services
                 _logger.LogError(ex, "Errore nella creazione della recensione");
                 throw;
             }
+        }
 
+        // - PUT: Recensione Utente
+        public async Task<bool> UpdateRecensioneUtenteAsync(UpdateRecensioneUtenteDto dto, Guid userId, Guid RecensioneId)
+        {
+            try
+            {
+                var user = await _context.Utenti
+                    .FirstOrDefaultAsync(u => u.UtenteId == userId);
+                if (user == null) return false;
+
+                var recensione = await _context.RecensioniUtente
+                    .FirstOrDefaultAsync(r => r.RecensioneId == RecensioneId && r.AcquirenteId == userId);
+
+                recensione.RecensioneTesto = dto.RecensioneTesto;
+                recensione.Valutazione = dto.Valutazione;
+                recensione.DataRecensione = DateTime.UtcNow;
+
+                await _context.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Errore durante la modifica della recensione");
+                throw;
+            }
         }
     }
 }
