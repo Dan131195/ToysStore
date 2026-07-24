@@ -7,7 +7,6 @@ namespace ToysStore.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
     public class RecensioneUtenteController : ControllerBase
     {
         private readonly RecensioneUtenteService _recensioneUtenteService;
@@ -17,8 +16,9 @@ namespace ToysStore.Controllers
             _recensioneUtenteService = recensioneUtenteService;
         }
 
+
         [HttpGet("{userId}")]
-        public async Task<IActionResult> OttieniRecensioniVenditore(Guid userId)
+        public async Task<IActionResult> GetRecensioniUtente(Guid userId)
         {
             var recensioni = await _recensioneUtenteService.GetAllRecensioniUtenteAsync(userId);
 
@@ -29,7 +29,7 @@ namespace ToysStore.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateRecensione([FromBody] CreateRecensioneUtenteDto dto)
+        public async Task<IActionResult> CreateRecensione([FromBody] RecensioneUtenteCreateDto dto)
         {
             try
             {
@@ -39,7 +39,7 @@ namespace ToysStore.Controllers
                 if (string.IsNullOrEmpty(userId)) return Unauthorized("Utente non valido");
 
                 var success = await _recensioneUtenteService.AddRecensioneUtenteAsync(dto, userId);
-                if (!success) return BadRequest("NOn è possibile fare una recensione a qesto ordine.");
+                if (success == null) return BadRequest("Non è possibile fare una recensione a questo ordine.");
 
                 return Ok();
             }
@@ -51,23 +51,28 @@ namespace ToysStore.Controllers
             }
         }
 
-        [HttpPut("{recensioneId}")]
-        public async Task<IActionResult> UpdateRecensioneUtente([FromBody] UpdateRecensioneUtenteDto dto, Guid recensioneId, Guid UtenteId)
+        [HttpPut("{recensioneId}/{utenteId}")]
+        public async Task<IActionResult> UpdateRecensioneUtente([FromBody] RecensioneUtenteUpdateDto dto, Guid recensioneId, Guid utenteId)
         {
             try
             {
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                if (string.IsNullOrEmpty(userId)) return Unauthorized();
+                var user = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(user)) return Unauthorized();
 
-                try
-                {
+                var recensioneUpdated = await _recensioneUtenteService.UpdateRecensioneUtenteAsync(dto, utenteId, recensioneId);
+                if (recensioneUpdated == null) return NotFound("Recensione Utente non trovata.");
 
-                }
+                return Ok(recensioneUpdated);
             }
             catch
             {
                 return StatusCode(500, new { Message = "Errore durante la modifica della recensione" });
             }
         }
+        /*
+        [HttpDelete("{userId}/{recensioneId}")]
+        public async Task<IActionResult> DeleteRecensioneUtente(Guid userId, Guid recensioneId) { 
+            
+        }*/
     }
 }

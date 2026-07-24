@@ -247,7 +247,7 @@ namespace ToysStore.Migrations
 
                     b.HasKey("CategoriaId");
 
-                    b.ToTable("Categorie");
+                    b.ToTable("Categorie", (string)null);
 
                     b.HasData(
                         new
@@ -374,7 +374,7 @@ namespace ToysStore.Migrations
 
                     b.HasKey("CondizioneId");
 
-                    b.ToTable("Condizioni");
+                    b.ToTable("Condizioni", (string)null);
 
                     b.HasData(
                         new
@@ -435,7 +435,7 @@ namespace ToysStore.Migrations
 
                     b.HasIndex("ProdottoId");
 
-                    b.ToTable("ImmaginiProdotto");
+                    b.ToTable("ImmaginiProdotto", (string)null);
                 });
 
             modelBuilder.Entity("ToysStore.Models.IndirizzoUtente", b =>
@@ -479,7 +479,7 @@ namespace ToysStore.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("IndirizziUtenti");
+                    b.ToTable("IndirizziUtenti", (string)null);
                 });
 
             modelBuilder.Entity("ToysStore.Models.Ordine", b =>
@@ -521,7 +521,7 @@ namespace ToysStore.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Ordini");
+                    b.ToTable("Ordini", (string)null);
                 });
 
             modelBuilder.Entity("ToysStore.Models.Prodotto", b =>
@@ -562,7 +562,7 @@ namespace ToysStore.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Prodotti");
+                    b.ToTable("Prodotti", (string)null);
                 });
 
             modelBuilder.Entity("ToysStore.Models.ProdottoCarrello", b =>
@@ -587,7 +587,7 @@ namespace ToysStore.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ProdottiCarrello");
+                    b.ToTable("ProdottiCarrello", (string)null);
                 });
 
             modelBuilder.Entity("ToysStore.Models.ProdottoOrdine", b =>
@@ -617,7 +617,7 @@ namespace ToysStore.Migrations
 
                     b.HasIndex("ProdottoId");
 
-                    b.ToTable("ProdottiOrdine");
+                    b.ToTable("ProdottiOrdine", (string)null);
                 });
 
             modelBuilder.Entity("ToysStore.Models.RecensioneUtente", b =>
@@ -654,7 +654,7 @@ namespace ToysStore.Migrations
 
                     b.HasIndex("VenditoreId");
 
-                    b.ToTable("RecensioniUtente");
+                    b.ToTable("RecensioniUtente", (string)null);
                 });
 
             modelBuilder.Entity("ToysStore.Models.StatoOrdine", b =>
@@ -672,7 +672,7 @@ namespace ToysStore.Migrations
 
                     b.HasKey("StatoOrdineId");
 
-                    b.ToTable("StatiOrdine");
+                    b.ToTable("StatiOrdine", (string)null);
 
                     b.HasData(
                         new
@@ -729,7 +729,7 @@ namespace ToysStore.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Utenti");
+                    b.ToTable("Utenti", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

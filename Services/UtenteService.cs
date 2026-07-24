@@ -23,42 +23,7 @@ namespace ToysStore.Services
             _environment = environment;
         }
 
-        // - Immagine Profilo
-
-        public async Task<string?> SaveImageAsync(IFormFile? imageFile)
-        {
-            try
-            {
-                if (imageFile == null || imageFile.Length == 0)
-                    return null;
-
-                var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads", "utenti");
-                if (!Directory.Exists(uploadsFolder))
-                    Directory.CreateDirectory(uploadsFolder);
-
-                var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
-                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
-                {
-                    await imageFile.CopyToAsync(fileStream);
-                }
-
-                _logger.LogInformation($"Immagine del profilo {uniqueFileName} salvata con successo.");
-
-                return Path.Combine("uploads", "utenti", uniqueFileName).Replace("\\", "/");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Errore durante il salvataggio dell'immagine del profilo.");
-                throw;
-            }
-        }
-
-
-
         // - GET: utente
-
         public async Task<Utente?> GetUtenteByUserIdAsync(string userId)
         {
             try
@@ -80,7 +45,6 @@ namespace ToysStore.Services
         }
 
         // - PUT: utente
-
         public async Task<bool> UpdateUtenteAsync(string userId, UtenteUpdateDto dto)
         {
             try
@@ -136,7 +100,6 @@ namespace ToysStore.Services
         }
 
         // - DELETE: utente
-
         public async Task<IdentityResult?> DeleteUtenteAsync(string userId)
         {
             try
@@ -165,6 +128,37 @@ namespace ToysStore.Services
                 throw;
             }
 
+        }
+
+        // - Immagine Profilo
+        public async Task<string?> SaveImageAsync(IFormFile? imageFile)
+        {
+            try
+            {
+                if (imageFile == null || imageFile.Length == 0)
+                    return null;
+
+                var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads", "utenti");
+                if (!Directory.Exists(uploadsFolder))
+                    Directory.CreateDirectory(uploadsFolder);
+
+                var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await imageFile.CopyToAsync(fileStream);
+                }
+
+                _logger.LogInformation($"Immagine del profilo {uniqueFileName} salvata con successo.");
+
+                return Path.Combine("uploads", "utenti", uniqueFileName).Replace("\\", "/");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Errore durante il salvataggio dell'immagine del profilo.");
+                throw;
+            }
         }
 
         // ---------------- INDIRIZZO ---------------- //

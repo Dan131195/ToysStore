@@ -53,9 +53,13 @@ namespace ToysStore.Data
 
             modelBuilder.Entity<Utente>()
                 .HasOne(u => u.User)
-                .WithOne(au => au.Utente)
+                .WithOne(u => u.Utente)
                 .HasForeignKey<Utente>(u => u.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Utente>()
+                .HasIndex(u => u.Nickname)
+                .IsUnique();
 
             // Rubrica Indirizzi dell'Utente (One-to-Many)
             modelBuilder.Entity<IndirizzoUtente>()

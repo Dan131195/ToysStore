@@ -38,7 +38,7 @@ namespace ToysStore.Controllers
             _logger = logger;
         }
 
-        // REGISTRAZIONE
+        // - REGISTRAZIONE
         [HttpPost("Register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequestDto registerRequestDto)
         {
@@ -91,7 +91,7 @@ namespace ToysStore.Controllers
                     utenteId = utente.UtenteId;
                 }
 
-                // EMAIL DI BENVENUTO - To Do : MIgliorare la grafica dell'email di benvenuto
+                // - To Do: EMAIL DI BENVENUTO MIgliorare la grafica dell'email di benvenuto
 
                 var subject = "Benvenuto su ToysStore!";
                 var body = $"Ciao {newUser.FirstName},<br><br>Benvenuto nel nostro Marketplace di giocattoli! Siamo felici di averti con noi.";
@@ -116,7 +116,7 @@ namespace ToysStore.Controllers
             }
         }
 
-        // LOGIN
+        // - LOGIN
         [HttpPost("Login")]
         public async Task<IActionResult> Login(LoginRequestDto loginRequestDto)
         {
@@ -155,7 +155,7 @@ namespace ToysStore.Controllers
 
                 string tokenString = new JwtSecurityTokenHandler().WriteToken(token);
 
-                // EMAIL DI LOGIN EFFETTUATO - To Do : MIgliorare la grafica dell'email di login
+                // - To Do: EMAIL DI LOGIN EFFETTUATO  MIgliorare la grafica dell'email di login
 
                 var loginSubject = "Nuovo accesso al tuo account";
                 var loginBody = $"Ciao {user.FirstName}, abbiamo rilevato un nuovo accesso al tuo account ToysStore in data {DateTime.Now}. Se non sei stato tu, cambia subito la password.";

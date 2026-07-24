@@ -1,10 +1,7 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using ToysStore.Data;
 using ToysStore.DTOs.RecensioneProdotto;
 using ToysStore.Models;
-using ToysStore.Models.Auth;
 
 namespace ToysStore.Services
 {
@@ -20,8 +17,9 @@ namespace ToysStore.Services
             _logger = logger;
         }
 
+
         // - GET: Lista recensioni Utente
-        public async Task<List<RecensioneUtenteDto>> GetAllRecensioniUtenteAsync(Guid utenteId)
+        public async Task<List<RecensioneUtenteResponseDto>> GetAllRecensioniUtenteAsync(Guid utenteId)
         {
             try
             {
@@ -29,13 +27,15 @@ namespace ToysStore.Services
                     .Include(r => r.Acquirente)
                     .Where(r => r.VenditoreId == utenteId)
                     .OrderByDescending(r => r.DataRecensione)
-                    .Select(r => new RecensioneUtenteDto
+                    .Select(r => new RecensioneUtenteResponseDto
                     {
                         RecensioneId = r.RecensioneId,
                         RecensioneTesto = r.RecensioneTesto,
                         Valutazione = r.Valutazione,
                         DataRecensione = r.DataRecensione,
                         Acquirente = r.Acquirente.Nickname,
+                        Venditore = r.Venditore.Nickname,
+                        NomiProdotti = r.Ordine.ProdottiOrdine
                     })
                     .ToListAsync();
 
@@ -51,23 +51,27 @@ namespace ToysStore.Services
         }
 
         // - POST: Recensione Utente
-        public async Task<bool> AddRecensioneUtenteAsync(CreateRecensioneUtenteDto dto, string userId)
+        public async Task<RecensioneUtenteResponseDto> AddRecensioneUtenteAsync(RecensioneUtenteCreateDto dto, string userId)
         {
             try
             {
                 var user = await _context.Utenti
                     .FirstOrDefaultAsync(u => u.UserId == userId);
-                if (user == null) return false;
+                if (user == null) return null;
 
                 var ordine = await _context.Ordini
                     .FirstOrDefaultAsync(o => o.OrdineId == dto.OrdineId);
-                if (ordine == null || ordine.UserId != userId) return false;
+                if (ordine == null || ordine.UserId != userId) return null;
+
+                var venditore = await _context.Utenti
+                    .FirstOrDefaultAsync(u => u.UtenteId == dto.VenditoreId);
+                if (venditore == null) return null;
 
                 // Controlla se l'ordine collegato ha già una recensione
                 bool controlloRecensioneOrdine = await _context.RecensioniUtente
                     .AnyAsync(r => r.OrdineId == dto.OrdineId);
 
-                if (controlloRecensioneOrdine) return false;
+                if (controlloRecensioneOrdine) return null;
 
                 var recensione = new RecensioneUtente
                 {
@@ -80,14 +84,25 @@ namespace ToysStore.Services
                     DataRecensione = DateTime.UtcNow
                 };
 
-                _logger.LogInformation("Recensione caricata con successo.");
-
                 _context.RecensioniUtente.Add(recensione);
                 await _context.SaveChangesAsync();
 
-                return true;
+                _logger.LogInformation("Recensione caricata con successo.");
+
+                var response = new RecensioneUtenteResponseDto
+                {
+                    RecensioneId = recensione.RecensioneId,
+                    RecensioneTesto = recensione.RecensioneTesto,
+                    Valutazione = recensione.Valutazione,
+                    DataRecensione = recensione.DataRecensione,
+                    Acquirente = user.Nickname,
+                    Venditore = venditore.Nickname,
+                    NomiProdotti = ordine.ProdottiOrdine
+                };
+
+                return response;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Errore nella creazione della recensione");
                 throw;
@@ -95,14 +110,17 @@ namespace ToysStore.Services
         }
 
         // - PUT: Recensione Utente
-        public async Task<bool> UpdateRecensioneUtenteAsync(UpdateRecensioneUtenteDto dto, Guid userId, Guid RecensioneId)
+        public async Task<RecensioneUtenteResponseDto?> UpdateRecensioneUtenteAsync(RecensioneUtenteUpdateDto dto, Guid userId, Guid RecensioneId)
         {
             try
             {
                 var recensione = await _context.RecensioniUtente
+                    .Include(r => r.Acquirente)
+                    .Include(r => r.Venditore)
+                    .Include(r => r.Ordine)
                     .FirstOrDefaultAsync(r => r.RecensioneId == RecensioneId && r.AcquirenteId == userId);
 
-                if (recensione == null) return false;
+                if (recensione == null) return null;
 
                 recensione.RecensioneTesto = dto.RecensioneTesto;
                 recensione.Valutazione = dto.Valutazione;
@@ -110,7 +128,20 @@ namespace ToysStore.Services
 
                 await _context.SaveChangesAsync();
 
-                return true;
+                var response = new RecensioneUtenteResponseDto
+                {
+                    RecensioneId = recensione.RecensioneId,
+                    RecensioneTesto = recensione.RecensioneTesto,
+                    Valutazione = recensione.Valutazione,
+                    DataRecensione = recensione.DataRecensione,
+                    Acquirente = recensione.Acquirente.Nickname,
+                    Venditore = recensione.Venditore.Nickname,
+                    NomiProdotti = recensione.Ordine.ProdottiOrdine
+                };
+
+                _logger.LogInformation("Recensione caricata con successo.");
+
+                return response;
             }
             catch (Exception ex)
             {

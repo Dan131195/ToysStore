@@ -83,6 +83,7 @@ try
     builder.Services.AddScoped<ProdottoService>();
     builder.Services.AddScoped<UtenteService>();
     builder.Services.AddScoped<RecensioneUtenteService>();
+    builder.Services.AddScoped<OrdineService>();
 
     builder.Host.UseSerilog();
 
