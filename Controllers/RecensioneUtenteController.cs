@@ -7,6 +7,7 @@ namespace ToysStore.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class RecensioneUtenteController : ControllerBase
     {
         private readonly RecensioneUtenteService _recensioneUtenteService;
@@ -28,7 +29,6 @@ namespace ToysStore.Controllers
         }
 
         [HttpPost]
-        [Authorize]
         public async Task<IActionResult> CreateRecensione([FromBody] CreateRecensioneUtenteDto dto)
         {
             try
@@ -51,6 +51,23 @@ namespace ToysStore.Controllers
             }
         }
 
+        [HttpPut("{recensioneId}")]
+        public async Task<IActionResult> UpdateRecensioneUtente([FromBody] UpdateRecensioneUtenteDto dto, Guid recensioneId, Guid UtenteId)
+        {
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(userId)) return Unauthorized();
 
+                try
+                {
+
+                }
+            }
+            catch
+            {
+                return StatusCode(500, new { Message = "Errore durante la modifica della recensione" });
+            }
+        }
     }
 }

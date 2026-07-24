@@ -1,7 +1,6 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ToysStore.DTOs;
 using ToysStore.DTOs.Prodotto;
 using ToysStore.Services;
 
@@ -97,17 +96,12 @@ namespace ToysStore.Controllers
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 if (string.IsNullOrEmpty(userId)) return Unauthorized();
 
-                try
-                {
-                    var prodottoAggiornato = await _prodottoService.UpdateProdottoAsync(id, dto, userId);
-                    if (prodottoAggiornato == null) return NotFound("Prodotto non trovato.");
 
-                    return Ok(prodottoAggiornato);
-                }
-                catch (UnauthorizedAccessException ex)
-                {
-                    return Forbid(ex.Message);
-                }
+                var prodottoAggiornato = await _prodottoService.UpdateProdottoAsync(id, dto, userId);
+                if (prodottoAggiornato == null) return NotFound("Prodotto non trovato.");
+
+                return Ok(prodottoAggiornato);
+
             }
             catch (Exception)
             {
@@ -129,12 +123,9 @@ namespace ToysStore.Controllers
                 var success = await _prodottoService.DeleteProdottoAsync(id, userId);
                 if (!success) return BadRequest("Prodotto non trovato o non sei autorizzato a eliminarlo.");
 
-                return NoContent();
+                return Ok();
             }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Forbid(ex.Message);
-            }
+            
             catch (Exception)
             {
                 return StatusCode(500, new { Message = "Errore durante la cancellazione del prodotto." });
@@ -153,7 +144,7 @@ namespace ToysStore.Controllers
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 if (string.IsNullOrEmpty(userId)) return Unauthorized();
 
-                if(img == null || !img.Any())
+                if (img == null || !img.Any())
                 {
                     return BadRequest("Nessuna immagine selezionata.");
                 }
@@ -163,10 +154,6 @@ namespace ToysStore.Controllers
                 if (newProdotto == null) return NotFound("Prodotto non trovato");
 
                 return Ok(newProdotto);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Forbid(ex.Message);
             }
             catch (Exception)
             {
@@ -189,10 +176,6 @@ namespace ToysStore.Controllers
                 if (newProdotto == null) return NotFound("Immagine del prodtto non trovata.");
 
                 return Ok(newProdotto);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Forbid(ex.Message);
             }
             catch (Exception)
             {

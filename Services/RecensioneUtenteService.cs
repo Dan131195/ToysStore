@@ -99,12 +99,10 @@ namespace ToysStore.Services
         {
             try
             {
-                var user = await _context.Utenti
-                    .FirstOrDefaultAsync(u => u.UtenteId == userId);
-                if (user == null) return false;
-
                 var recensione = await _context.RecensioniUtente
                     .FirstOrDefaultAsync(r => r.RecensioneId == RecensioneId && r.AcquirenteId == userId);
+
+                if (recensione == null) return false;
 
                 recensione.RecensioneTesto = dto.RecensioneTesto;
                 recensione.Valutazione = dto.Valutazione;
@@ -116,7 +114,30 @@ namespace ToysStore.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Errore durante la modifica della recensione");
+                _logger.LogError(ex, $"Errore durante la modifica della recensione {RecensioneId}");
+                throw;
+            }
+        }
+
+        // - DELETE: Recensione utente
+        public async Task<bool> DeleteRecensioneUtente(Guid userId, Guid recensioneId)
+        {
+            try
+            {
+                var recensione = await _context.RecensioniUtente
+                    .FirstOrDefaultAsync(r => r.RecensioneId == recensioneId && r.AcquirenteId == userId);
+                if (recensione == null) return false;
+
+                _context.RecensioniUtente.Remove(recensione);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation($"Recensione {recensioneId} utente {userId} cancellata con successo.");
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Errore nella cencellazione della recensione {recensioneId}");
                 throw;
             }
         }
