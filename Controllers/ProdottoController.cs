@@ -117,10 +117,10 @@ namespace ToysStore.Controllers
         {
             try
             {
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                if (string.IsNullOrEmpty(userId)) return Unauthorized();
+                var user = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(user)) return Unauthorized();
 
-                var success = await _prodottoService.DeleteProdottoAsync(id, userId);
+                var success = await _prodottoService.DeleteProdottoAsync(id, user);
                 if (!success) return BadRequest("Prodotto non trovato o non sei autorizzato a eliminarlo.");
 
                 return Ok();

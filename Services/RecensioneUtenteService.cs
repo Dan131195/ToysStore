@@ -110,7 +110,7 @@ namespace ToysStore.Services
         }
 
         // - PUT: Recensione Utente
-        public async Task<RecensioneUtenteResponseDto?> UpdateRecensioneUtenteAsync(RecensioneUtenteUpdateDto dto, Guid userId, Guid RecensioneId)
+        public async Task<RecensioneUtenteResponseDto?> UpdateRecensioneUtenteAsync(RecensioneUtenteUpdateDto dto, Guid utenteId, Guid RecensioneId)
         {
             try
             {
@@ -118,7 +118,7 @@ namespace ToysStore.Services
                     .Include(r => r.Acquirente)
                     .Include(r => r.Venditore)
                     .Include(r => r.Ordine)
-                    .FirstOrDefaultAsync(r => r.RecensioneId == RecensioneId && r.AcquirenteId == userId);
+                    .FirstOrDefaultAsync(r => r.RecensioneId == RecensioneId && r.AcquirenteId == utenteId);
 
                 if (recensione == null) return null;
 
@@ -151,18 +151,18 @@ namespace ToysStore.Services
         }
 
         // - DELETE: Recensione utente
-        public async Task<bool> DeleteRecensioneUtente(Guid userId, Guid recensioneId)
+        public async Task<bool> DeleteRecensioneUtente(Guid utenteId, Guid recensioneId)
         {
             try
             {
                 var recensione = await _context.RecensioniUtente
-                    .FirstOrDefaultAsync(r => r.RecensioneId == recensioneId && r.AcquirenteId == userId);
+                    .FirstOrDefaultAsync(r => r.RecensioneId == recensioneId && r.AcquirenteId == utenteId);
                 if (recensione == null) return false;
 
                 _context.RecensioniUtente.Remove(recensione);
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation($"Recensione {recensioneId} utente {userId} cancellata con successo.");
+                _logger.LogInformation($"Recensione {recensioneId} utente {utenteId} cancellata con successo.");
 
                 return true;
             }

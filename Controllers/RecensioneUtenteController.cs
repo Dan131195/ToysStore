@@ -17,10 +17,10 @@ namespace ToysStore.Controllers
         }
 
 
-        [HttpGet("{userId}")]
-        public async Task<IActionResult> GetRecensioniUtente(Guid userId)
+        [HttpGet("{utenteId}")]
+        public async Task<IActionResult> GetRecensioniUtente(Guid utenteId)
         {
-            var recensioni = await _recensioneUtenteService.GetAllRecensioniUtenteAsync(userId);
+            var recensioni = await _recensioneUtenteService.GetAllRecensioniUtenteAsync(utenteId);
 
             if (recensioni == null || !recensioni.Any())
                 return NotFound("Nessuna recensione trovata per questo venditore.");
@@ -52,10 +52,12 @@ namespace ToysStore.Controllers
         }
 
         [HttpPut("{recensioneId}/{utenteId}")]
-        public async Task<IActionResult> UpdateRecensioneUtente([FromBody] RecensioneUtenteUpdateDto dto, Guid recensioneId, Guid utenteId)
+        public async Task<IActionResult> UpdateRecensioneUtente([FromBody] RecensioneUtenteUpdateDto dto, Guid utenteId, Guid recensioneId )
         {
             try
             {
+                if (!ModelState.IsValid) return BadRequest(ModelState);
+
                 var user = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 if (string.IsNullOrEmpty(user)) return Unauthorized();
 
@@ -69,10 +71,23 @@ namespace ToysStore.Controllers
                 return StatusCode(500, new { Message = "Errore durante la modifica della recensione" });
             }
         }
-        /*
-        [HttpDelete("{userId}/{recensioneId}")]
-        public async Task<IActionResult> DeleteRecensioneUtente(Guid userId, Guid recensioneId) { 
-            
-        }*/
+        [HttpDelete("{utenteId}/{recensioneId}")]
+        public async Task<IActionResult> DeleteRecensioneUtente(Guid utenteId, Guid recensioneId) 
+        { 
+            try
+            {
+                var user = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(user)) return Unauthorized();
+
+                var success = await _recensioneUtenteService.DeleteRecensioneUtente(utenteId, recensioneId);
+                if (!success) return BadRequest("Recensione non trovata o non sei autorizzato a eliminarla.");
+
+                return Ok();
+            }
+            catch
+            {
+                return StatusCode(500, new { Message = "Errore nella cancellazione della recensione." });
+            }
+        }
     }
 }
