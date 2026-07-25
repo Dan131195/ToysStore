@@ -16,7 +16,6 @@ namespace ToysStore.Controllers
             _recensioneUtenteService = recensioneUtenteService;
         }
 
-
         [HttpGet("{utenteId}")]
         public async Task<IActionResult> GetRecensioniUtente(Guid utenteId)
         {
